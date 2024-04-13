@@ -1,0 +1,14 @@
+{
+  "name": "@cine-map/contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anatine/zod-openapi": "^2.2.5",
+    "@ts-rest/core": "^3.43.0",
+    "zod": "^3.22.4"
+  }
+}

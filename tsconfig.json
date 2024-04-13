@@ -1,0 +1,14 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "packages/contract"
+        },
+        {
+            "path": "app/back"
+        },
+        {
+            "path": "app/front"
+        },
+    ]
+}
