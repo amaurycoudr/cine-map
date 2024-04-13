@@ -5,10 +5,10 @@
             "path": "packages/contract"
         },
         {
-            "path": "app/back"
+            "path": "apps/back"
         },
         {
-            "path": "app/front"
+            "path": "apps/front"
         },
     ]
 }

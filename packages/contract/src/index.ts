@@ -25,7 +25,7 @@ export const contract = c.router({
       ),
     },
     query: z.object({
-      q: z.string(),
+      q: z.string()
     }),
   },
   postTmdbMovie: {
