@@ -2,8 +2,8 @@ import 'dotenv/config';
 import type { Config } from 'drizzle-kit';
 
 export default {
-  schema: 'apps/cine-map-back/src/drizzle/schema.ts',
-  out: 'apps/cine-map-back/drizzle',
+  schema: './src/drizzle/schema.ts',
+  out: './drizzle',
   driver: 'pg',
   dbCredentials: {
     host: process.env.DB_HOST ?? '',

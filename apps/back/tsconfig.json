@@ -20,9 +20,4 @@
     "noFallthroughCasesInSwitch": false,
     "strictPropertyInitialization": false,
   },
-  "references": [
-    {
-      "path": "../../packages/contract"
-    }
-  ]
 }
