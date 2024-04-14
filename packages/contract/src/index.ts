@@ -56,8 +56,8 @@ export const contract = c.router({
     method: 'PATCH',
     path: '/maps/:id',
     body: z.object({
-      title: z.string().optional(),
-      description: z.string().optional(),
+      title: z.string().min(3).optional(),
+      description: z.string().min(5).optional(),
       isDraft: z.boolean().optional(),
     }),
     responses: {
