@@ -7,4 +7,4 @@ export const insertMapSchema = createInsertSchema(map);
 
 export type CreateMapDto = z.infer<typeof insertMapSchema>;
 
-export type UpdateMapDto = Required<Omit<CreateMapDto, 'id'>>;
+export type UpdateMapDto = Omit<CreateMapDto, 'id'>;

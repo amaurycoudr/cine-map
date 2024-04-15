@@ -18,7 +18,9 @@ export const drizzleProvider = {
       password: config.get('DB_PASSWORD'),
       database: config.get('DB_NAME'),
     });
+
     const db = drizzle(queryClient, { schema: schema, logger: true });
+
     return db;
   },
   inject: [ConfigService],

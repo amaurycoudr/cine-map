@@ -9,7 +9,7 @@ const c = initContract();
 const mapSchema = z.object({
   id: z.number(),
   title: z.string().optional(),
-  movies: z.array(z.object({ id: z.number().nullable(), title: z.string().nullable(), posterPath: z.string().nullable() })),
+  movies: z.array(z.object({ id: z.number(), title: z.string(), posterPath: z.string().nullable().optional() })),
   description: z.string().optional(),
   isDraft: z.boolean().optional(),
 });
@@ -38,7 +38,7 @@ export const contract = c.router({
     method: 'POST',
     path: '/tmdb/movie/:id',
     body: z.object({}),
-    pathParams: z.object({ id: z.string() }),
+    pathParams: z.object({ id: z.string().or(z.number()) }),
     responses: {
       201: z.object({ id: z.number() }),
       404: z.object({ error: z.string() }),
@@ -49,17 +49,26 @@ export const contract = c.router({
     path: '/maps',
     body: z.object({}),
     responses: {
-      201: z.object({ id: z.number() }),
+      201: mapSchema,
+    },
+  },
+  getMap: {
+    method: 'GET',
+    path: '/maps/:id',
+    pathParams: z.object({ id: z.string().or(z.number()) }),
+    responses: {
+      200: mapSchema,
+      404: z.object({ error: z.enum(['Not found']) }),
     },
   },
   patchMaps: {
     method: 'PATCH',
     path: '/maps/:id',
-    pathParams: z.object({ id: z.string() }),
+    pathParams: z.object({ id: z.string().or(z.number()) }),
     body: z.object({
-      title: z.string().min(3),
-      description: z.string().min(5),
-      isDraft: z.boolean(),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      isDraft: z.boolean().optional(),
     }),
     responses: {
       200: mapSchema,

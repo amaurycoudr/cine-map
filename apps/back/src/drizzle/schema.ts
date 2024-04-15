@@ -8,7 +8,7 @@ export const jobEnum = pgEnum('job', JOBS);
 export const movie = pgTable(
   'movie',
   {
-    id: serial('id').primaryKey(),
+    id: serial('id').primaryKey().notNull(),
     title: text('title').notNull(),
     releaseDate: date('releaseDate').notNull(),
     tmdbId: integer('tmdb_id'),
@@ -73,7 +73,7 @@ export const crewRelations = relations(crew, ({ one }) => ({
 export const person = pgTable(
   'person',
   {
-    id: serial('id').primaryKey(),
+    id: serial('id').primaryKey().notNull(),
     name: text('name'),
     birthday: date('birthday'),
     deathday: date('deathday'),
@@ -92,7 +92,7 @@ export const personRelations = relations(person, ({ many }) => ({
 }));
 
 export const map = pgTable('map', {
-  id: serial('id').primaryKey(),
+  id: serial('id').primaryKey().notNull(),
   title: text('title').notNull().default(''),
   description: text('description').notNull().default(''),
   isDraft: boolean('is_draft').notNull().default(true),
@@ -110,7 +110,7 @@ export const moviesMaps = pgTable(
       .references(() => movie.id, { onDelete: 'cascade' }),
     mapId: integer('map_id')
       .notNull()
-      .references(() => person.id, { onDelete: 'cascade' }),
+      .references(() => map.id, { onDelete: 'cascade' }),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.mapId, t.movieId] }),
@@ -119,4 +119,5 @@ export const moviesMaps = pgTable(
 
 export const moviesMapsRelations = relations(moviesMaps, ({ one }) => ({
   movie: one(movie, { fields: [moviesMaps.movieId], references: [movie.id] }),
+  map: one(map, { fields: [moviesMaps.mapId], references: [map.id] }),
 }));

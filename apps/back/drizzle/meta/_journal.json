@@ -15,6 +15,13 @@
       "when": 1713104061579,
       "tag": "0001_certain_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1713204991245,
+      "tag": "0002_noisy_queen_noir",
+      "breakpoints": true
     }
   ]
 }
