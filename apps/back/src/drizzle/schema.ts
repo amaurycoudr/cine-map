@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { date, integer, pgEnum, pgTable, primaryKey, serial, text, unique, varchar } from 'drizzle-orm/pg-core';
+import { boolean, date, integer, pgEnum, pgTable, primaryKey, serial, text, unique, varchar } from 'drizzle-orm/pg-core';
 import { GENDERS, JOBS } from '../utils/transco';
 
 export const genderEnum = pgEnum('gender', GENDERS);
@@ -93,8 +93,9 @@ export const personRelations = relations(person, ({ many }) => ({
 
 export const map = pgTable('map', {
   id: serial('id').primaryKey(),
-  title: text('title'),
-  description: text('description'),
+  title: text('title').notNull().default(''),
+  description: text('description').notNull().default(''),
+  isDraft: boolean('is_draft').notNull().default(true),
 });
 
 export const mapRelations = relations(map, ({ many }) => ({
@@ -118,5 +119,4 @@ export const moviesMaps = pgTable(
 
 export const moviesMapsRelations = relations(moviesMaps, ({ one }) => ({
   movie: one(movie, { fields: [moviesMaps.movieId], references: [movie.id] }),
-  person: one(map, { fields: [moviesMaps.mapId], references: [map.id] }),
 }));

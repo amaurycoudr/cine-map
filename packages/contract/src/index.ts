@@ -9,7 +9,7 @@ const c = initContract();
 const mapSchema = z.object({
   id: z.number(),
   title: z.string().optional(),
-  movies: z.array(z.object({ id: z.number(), title: z.string(), posterPath: z.string() })),
+  movies: z.array(z.object({ id: z.number().nullable(), title: z.string().nullable(), posterPath: z.string().nullable() })),
   description: z.string().optional(),
   isDraft: z.boolean().optional(),
 });
@@ -44,7 +44,7 @@ export const contract = c.router({
       404: z.object({ error: z.string() }),
     },
   },
-  createMaps: {
+  createMap: {
     method: 'POST',
     path: '/maps',
     body: z.object({}),
@@ -55,20 +55,32 @@ export const contract = c.router({
   patchMaps: {
     method: 'PATCH',
     path: '/maps/:id',
+    pathParams: z.object({ id: z.string() }),
     body: z.object({
-      title: z.string().min(3).optional(),
-      description: z.string().min(5).optional(),
-      isDraft: z.boolean().optional(),
+      title: z.string().min(3),
+      description: z.string().min(5),
+      isDraft: z.boolean(),
     }),
     responses: {
       200: mapSchema,
-      400: z.object({ error: z.enum(['invalidToSave']) }),
+      400: z.object(
+        { error: z.array(z.enum(['title', 'movies', 'description'])).openapi({ example: ['title', 'description'] }) },
+        { description: 'Response returned when one/multiple filed are invalid and isDraft is switch to false. Returned the list of invalid filed' },
+      ),
+      404: z.object({ error: z.enum(['Not found']) }),
     },
   },
   addMovieToMap: {
     method: 'POST',
     path: '/maps/:id/movies',
     body: z.object({ tmdbId: z.number() }),
+    responses: { 200: mapSchema },
+  },
+  deleteMovieFromMap: {
+    method: 'DELETE',
+    path: '/maps/:id/movies/:movieId',
+    pathParams: z.object({ id: z.string(), movieId: z.string() }),
+    body: z.undefined(),
     responses: { 200: mapSchema },
   },
 });

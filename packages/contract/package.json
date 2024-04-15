@@ -13,7 +13,7 @@
     "zod": "^3.22.4"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts"
+    "build": "tsup src/index.ts --format cjs,esm --dts  --watch"
   },
   "type": "commonjs",
   "main": "./dist/index.js",

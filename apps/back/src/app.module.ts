@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DrizzleModule } from './drizzle/drizzle.module';
-import { TmdbModule } from './tmdb/tmdb.module';
-
+import { MapsModule } from './maps/maps.module';
 import { MoviesModule } from './movies/movies.module';
 import { PersonsModule } from './persons/persons.module';
+import { TmdbModule } from './tmdb/tmdb.module';
 import { zOA } from './utils/z';
-import { MapsModule } from './maps/maps.module';
 
 const configSchema = zOA.object({
   DB_PASSWORD: zOA.string(),

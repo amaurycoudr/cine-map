@@ -1,0 +1,391 @@
+{
+  "id": "b357d6bd-0c3e-49c9-985e-d18462d63ed3",
+  "prevId": "0807c2a5-dc65-4e9a-b8ad-140260c3365a",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "cast": {
+      "name": "cast",
+      "schema": "",
+      "columns": {
+        "movie_id": {
+          "name": "movie_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "person_id": {
+          "name": "person_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "character": {
+          "name": "character",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cast_movie_id_movie_id_fk": {
+          "name": "cast_movie_id_movie_id_fk",
+          "tableFrom": "cast",
+          "tableTo": "movie",
+          "columnsFrom": [
+            "movie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cast_person_id_person_id_fk": {
+          "name": "cast_person_id_person_id_fk",
+          "tableFrom": "cast",
+          "tableTo": "person",
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "cast_person_id_movie_id_character_pk": {
+          "name": "cast_person_id_movie_id_character_pk",
+          "columns": [
+            "person_id",
+            "movie_id",
+            "character"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "crew": {
+      "name": "crew",
+      "schema": "",
+      "columns": {
+        "movie_id": {
+          "name": "movie_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "person_id": {
+          "name": "person_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job": {
+          "name": "job",
+          "type": "job",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "crew_movie_id_movie_id_fk": {
+          "name": "crew_movie_id_movie_id_fk",
+          "tableFrom": "crew",
+          "tableTo": "movie",
+          "columnsFrom": [
+            "movie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "crew_person_id_person_id_fk": {
+          "name": "crew_person_id_person_id_fk",
+          "tableFrom": "crew",
+          "tableTo": "person",
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "crew_person_id_movie_id_job_pk": {
+          "name": "crew_person_id_movie_id_job_pk",
+          "columns": [
+            "person_id",
+            "movie_id",
+            "job"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "map": {
+      "name": "map",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_draft": {
+          "name": "is_draft",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "movie": {
+      "name": "movie",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "releaseDate": {
+          "name": "releaseDate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tmdb_id": {
+          "name": "tmdb_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "posterPath": {
+          "name": "posterPath",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "originalLanguage": {
+          "name": "originalLanguage",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "overview": {
+          "name": "overview",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tagline": {
+          "name": "tagline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unq_movie": {
+          "name": "unq_movie",
+          "nullsNotDistinct": false,
+          "columns": [
+            "releaseDate",
+            "title"
+          ]
+        }
+      }
+    },
+    "movies_maps": {
+      "name": "movies_maps",
+      "schema": "",
+      "columns": {
+        "movie_id": {
+          "name": "movie_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "map_id": {
+          "name": "map_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "movies_maps_movie_id_movie_id_fk": {
+          "name": "movies_maps_movie_id_movie_id_fk",
+          "tableFrom": "movies_maps",
+          "tableTo": "movie",
+          "columnsFrom": [
+            "movie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "movies_maps_map_id_person_id_fk": {
+          "name": "movies_maps_map_id_person_id_fk",
+          "tableFrom": "movies_maps",
+          "tableTo": "person",
+          "columnsFrom": [
+            "map_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "movies_maps_map_id_movie_id_pk": {
+          "name": "movies_maps_map_id_movie_id_pk",
+          "columns": [
+            "map_id",
+            "movie_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "person": {
+      "name": "person",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "birthday": {
+          "name": "birthday",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deathday": {
+          "name": "deathday",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gender": {
+          "name": "gender",
+          "type": "gender",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tmdb_id": {
+          "name": "tmdb_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "known_for": {
+          "name": "known_for",
+          "type": "job",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unq_person": {
+          "name": "unq_person",
+          "nullsNotDistinct": true,
+          "columns": [
+            "name",
+            "birthday"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {
+    "gender": {
+      "name": "gender",
+      "values": {
+        "0": "0",
+        "1": "1",
+        "2": "2",
+        "3": "3"
+      }
+    },
+    "job": {
+      "name": "job",
+      "values": {
+        "0": "0",
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
