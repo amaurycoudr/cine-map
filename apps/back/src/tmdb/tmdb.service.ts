@@ -24,7 +24,11 @@ const TMDB_ENDPOINTS = {
 export class TmdbService {
   private axiosClient: AxiosInstance;
 
-  constructor(private config: ConfigService, private readonly moviesService: MoviesService, private readonly personService: PersonsService) {
+  constructor(
+    private config: ConfigService,
+    private readonly moviesService: MoviesService,
+    private readonly personService: PersonsService,
+  ) {
     this.axiosClient = axios.create({ baseURL: TMDB_API_URL });
     this.axiosClient.defaults.headers.common['Authorization'] = `Bearer ${this.config.get('TMDB_API_ACCESS_TOKEN')}`;
     this.axiosClient.defaults.params = {};

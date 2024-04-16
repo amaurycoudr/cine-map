@@ -1,15 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { map } from 'src/drizzle/schema';
+import { map, moviesMaps } from 'src/drizzle/schema';
 import { ERRORS, NOT_FOUND } from 'src/utils/errors';
 import { Database, DrizzleProvider } from '../drizzle/drizzle.provider';
-import { UpdateMapDto } from './maps.types';
+import { CreateMoviesMapsDto, UpdateMapDto } from './maps.types';
 import { SelectMovie } from 'src/movies/movies.types';
+import { TmdbService } from 'src/tmdb/tmdb.service';
+import { and, eq } from 'drizzle-orm';
 
 type MapFind = NonNullable<Awaited<ReturnType<MapsService['findOne']>>>;
 
 @Injectable()
 export class MapsService {
   @Inject(DrizzleProvider) private db: Database;
+
+  constructor(private readonly tmdbService: TmdbService) {}
 
   async create() {
     const newMap = (await this.db.insert(map).values({ isDraft: true }).returning())[0];
@@ -65,6 +69,35 @@ export class MapsService {
     await this.db.update(map).set(newMap);
 
     return { code: ERRORS.VALID, res: { ...newMap, id } };
+  }
+
+  createMoviesMaps(moviesMapsDto: CreateMoviesMapsDto) {
+    return this.db.insert(moviesMaps).values(moviesMapsDto).onConflictDoNothing().returning();
+  }
+
+  removeMoviesMaps({ mapId, movieId }: CreateMoviesMapsDto) {
+    return this.db.delete(moviesMaps).where(and(eq(moviesMaps.mapId, mapId), eq(moviesMaps.movieId, movieId)));
+  }
+
+  async addMovie(id: number, tmdbId: number) {
+    const currentMap = await this.findOne(id);
+    const insertedMovie = await this.tmdbService.handleMovie(tmdbId);
+    if (!currentMap || !insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
+    await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });
+
+    const updatedMap = await this.findOne(id);
+
+    return { code: ERRORS.VALID, res: updatedMap! };
+  }
+
+  async removeMovie(mapId: number, movieId: number) {
+    await this.removeMoviesMaps({ mapId, movieId });
+
+    const updatedMap = await this.findOne(mapId);
+
+    if (!updatedMap) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
+
+    return { code: ERRORS.VALID, res: updatedMap! };
   }
 
   remove(id: number) {

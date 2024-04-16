@@ -34,6 +34,24 @@ export class MapsController {
     });
   }
 
+  @TsRestHandler(contract.addMovieToMap)
+  addMovieToMap() {
+    return tsRestHandler(contract.addMovieToMap, async ({ params: { id }, body: { tmdbId } }) => {
+      const { code, res } = await this.mapsService.addMovie(+id, tmdbId);
+      if (code === ERRORS.NOT_FOUND) return { body: { error: res }, status: 404 };
+      return { status: 200, body: res };
+    });
+  }
+
+  @TsRestHandler(contract.deleteMovieFromMap)
+  deleteMovieFromMap() {
+    return tsRestHandler(contract.deleteMovieFromMap, async ({ params: { id, movieId } }) => {
+      const { code, res } = await this.mapsService.removeMovie(+id, +movieId);
+      if (code === ERRORS.NOT_FOUND) return { body: { error: res }, status: 404 };
+      return { status: 200, body: res };
+    });
+  }
+
   @Get()
   findAll() {
     return this.mapsService.findAll();
