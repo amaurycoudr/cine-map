@@ -1,0 +1,32 @@
+version: '3'
+services:
+  back: 
+   # restart: unless-stopped
+    build:
+      context: .
+      dockerfile: apps/back/Dockerfile
+      target: development
+    # Mount host directory to docker container to support watch mode
+    volumes:
+      - ./apps/back/:/usr/src/app/
+      - /usr/src/app/node_modules/
+      - ./node_modules/@cine-map/contract/:/usr/src/app/node_modules/@cine-map/contract/
+    env_file:
+      - apps/back/.env
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    command: npx nest start --watch 
+
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: pass123
+      POSTGRES_USER: user123
+      POSTGRES_DB: db123
+    volumes:
+      - ./data:/var/lib/postgresql/data
