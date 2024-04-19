@@ -23,6 +23,7 @@ export class MapsController {
       const { code, res } = await this.mapsService.update(+id, body);
       if (code === ERRORS.VALID) return { body: res, status: 200 };
       if (code === ERRORS.NOT_FOUND) return { body: { error: res }, status: 404 };
+      if (code === ERRORS.NOT_EDITABLE) return { body: { error: 'not editable map' as const }, status: 400 };
       return { status: 400, body: { error: res } };
     });
   }
@@ -41,6 +42,7 @@ export class MapsController {
     return tsRestHandler(contract.addMovieToMap, async ({ params: { id }, body: { tmdbId } }) => {
       const { code, res } = await this.mapsService.addMovie(+id, tmdbId);
       if (code === ERRORS.NOT_FOUND) return { body: { error: res }, status: 404 };
+      if (code === ERRORS.NOT_EDITABLE) return { body: { error: 'not editable map' as const }, status: 400 };
       return { status: 200, body: res };
     });
   }
@@ -50,6 +52,7 @@ export class MapsController {
     return tsRestHandler(contract.deleteMovieFromMap, async ({ params: { id, movieId } }) => {
       const { code, res } = await this.mapsService.removeMovie(+id, +movieId);
       if (code === ERRORS.NOT_FOUND) return { body: { error: res }, status: 404 };
+      if (code === ERRORS.NOT_EDITABLE) return { body: { error: 'not editable map' as const }, status: 400 };
       return { status: 200, body: res };
     });
   }

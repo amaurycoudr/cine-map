@@ -9,7 +9,7 @@ import { CheckIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { keepPreviousData, queryOptions, useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import dayjs from 'dayjs';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { client, queryClient } from '../client';
 
@@ -24,10 +24,10 @@ const mapQueryOptions = (id: number | undefined) =>
     enabled: false,
   });
 
-export const Route = createFileRoute('/createMap')({
+export const Route = createFileRoute('/create_map')({
   component: () => <Component />,
 
-  validateSearch: (search) => z.object({ q: z.string().optional(), id: z.number().optional() }).optional().default({ q: '' }).parse(search),
+  validateSearch: (search) => z.object({ q: z.string().optional(), id: z.number().optional() }).optional().default({}).parse(search),
   loaderDeps: ({ search: { id } }) => {
     return { id };
   },
@@ -52,40 +52,11 @@ export const Route = createFileRoute('/createMap')({
   },
 });
 
-const Step = ({
-  title,
-  label,
-  step,
-  children,
-  isStepValid,
-  isPreviousStepsValid,
-}: {
-  title: string;
-  label: string;
-  step: number;
-  isPreviousStepsValid: boolean;
-  children: ReactNode;
-  isStepValid: boolean;
-}) => (
-  <div className={cn('mb-24 transform duration-500', { 'mb-12': isStepValid, 'opacity-50': !isPreviousStepsValid })}>
-    <div className={cn('flex flex-row gap-4 sticky top-0 items-start bg-background')}>
-      <Typography id={`${title}`} variant={'h2'} className=" flex-1  pt-2">
-        {step}. {title}
-      </Typography>
-
-      <div className="border rounded-md h-12 mt-1 aspect-square flex flex-row items-center justify-center">
-        {isStepValid ? <CheckIcon className="w-6 h-6 text-green-500" /> : <Cross1Icon className="w-6 h-6 text-zinc-500" />}
-      </div>
-    </div>
-    <p className="mt-2 mb-4 text-sm text-muted-foreground">{label}</p>
-    {children}
-  </div>
-);
 const Component = () => {
   const { q, id } = Route.useSearch();
   const { id: loadedId } = Route.useLoaderData() || {};
   const navigate = useNavigate();
-
+  const refInputTitle = useRef<HTMLInputElement>(null);
   const {
     data: { body: mapData },
   } = useSuspenseQuery(mapQueryOptions(loadedId));
@@ -95,6 +66,7 @@ const Component = () => {
     onSuccess: (data) => {
       if (data.status !== 200) return;
       queryClient.setQueryData(mapQueryOptions(data.body.id).queryKey, data);
+      if (data.body.isDraft === false) navigate({ to: '/' });
     },
   });
   const {
@@ -126,7 +98,7 @@ const Component = () => {
     debounceState: debounceMap,
   } = useDebounceState({ title: mapData.title, description: mapData.description, isDraft: mapData.isDraft }, 1_000);
 
-  const [openAddMovie, setOpenAddMovie] = useState(false);
+  const [openAddMovie, setOpenAddMovie] = useState(!!q);
 
   const { state: qState, debounceState: debouncedQState, setState: setQState } = useDebounceState(q ?? '');
   const { data: searchData } = useQuery({
@@ -134,59 +106,88 @@ const Component = () => {
     queryFn: () => client.searchTmdb({ query: { q: debouncedQState } }),
     placeholderData: keepPreviousData,
     staleTime: Infinity,
+    enabled: !!debouncedQState,
   });
 
   useEffect(() => {
     if (id !== loadedId) navigate({ search: { id: loadedId, q }, replace: true });
   }, [loadedId, id, q, navigate]);
 
+  console.log(refInputTitle);
+  useEffect(() => {
+    refInputTitle.current?.focus();
+  }, []);
   useEffectSkipFirst(() => {
     id && patchMap(debounceMap);
   }, [debounceMap]);
 
   const steps = {
-    title: (temporaryMap?.title?.length || 0) >= 3,
-    description: (temporaryMap.description?.length || 0) >= 5,
-    movies: mapData.movies.length >= 3,
+    title: {
+      isStepValid: (temporaryMap?.title?.trim().length || 0) >= 3,
+      title: 'Le titre',
+      label: 'Titre de votre carte de film (min 3 caractères)',
+      step: 1,
+    },
+    description: {
+      isStepValid: (temporaryMap.description?.trim().length || 0) >= 5,
+      title: 'La description',
+      label: "Déscritption de votre carte de film (min 5 caractères (+ c'est mieux))",
+      step: 2,
+    },
+    movies: {
+      isStepValid: mapData.movies.length >= 3,
+      title: `Les films (${mapData.movies.length})`,
+      label: 'La liste des films qui constituent votre carte (min 3)',
+      step: 3,
+    },
   };
-
-  if (searchData?.status !== 200) return;
+  const [focusStep, setFocusStep] = useState<number | undefined>(undefined);
 
   return (
-    <>
-      <div className="p-12 container max-w-2xl min-h-screen flex flex-col ">
-        <Typography variant={'h1'} className="self-center mb-24">
+    <div className="px-4">
+      <div className="pt-12 pb-24 px-0 container relative max-w-3xl w-full min-h-screen flex flex-col ">
+        <Typography variant={'h1'} className="self-center mb-12">
           Création d'une carte
         </Typography>
-        <Step title="Le titre" label="Titre de votre carte de film (min 3 caractères)" step={1} isStepValid={steps.title} isPreviousStepsValid>
+        <Step {...steps.title} isPreviousStepsValid isFocus={focusStep === steps.title.step}>
           <Input
             onChange={({ target: { value } }) => setTemporaryMap((prev) => ({ ...prev, title: value }))}
             value={temporaryMap.title}
+            onFocus={() => {
+              setFocusStep(steps.title.step);
+            }}
+            onBlur={() => {
+              setFocusStep(undefined);
+            }}
+            ref={refInputTitle}
             placeholder="La carte du monde"
             className="text-xl h-14 font-bold"
           />
         </Step>
-        <Step
-          isPreviousStepsValid={steps.title}
-          title="La description"
-          label="Déscritption de votre carte de film (min 5 caractères (+ c'est mieux))"
-          step={2}
-          isStepValid={steps.description}
-        >
+        <Step isPreviousStepsValid={steps.title.isStepValid} {...steps.description} isFocus={focusStep === steps.description.step}>
           <Textarea
             onChange={({ target: { value } }) => setTemporaryMap((prev) => ({ ...prev, description: value }))}
             value={temporaryMap.description}
+            onFocus={() => {
+              setFocusStep(steps.description.step);
+            }}
+            onBlur={() => {
+              setFocusStep(undefined);
+            }}
             placeholder="Voyager grâce au ..."
           />
         </Step>
         <Step
-          isPreviousStepsValid={steps.title && steps.description}
-          title={`Les films (${mapData.movies.length})`}
-          label="La liste des films qui constituent votre carte (min 3)"
-          step={3}
-          isStepValid={steps.movies}
+          isPreviousStepsValid={steps.title.isStepValid && steps.description.isStepValid}
+          {...steps.movies}
+          isFocus={focusStep === steps.movies.step}
         >
-          <div className="flex flex-col gap-6 mt-6">
+          <div
+            className="flex flex-col gap-6 mt-6"
+            onClick={() => {
+              setFocusStep(steps.movies.step);
+            }}
+          >
             <Button
               onClick={() => {
                 setOpenAddMovie(true);
@@ -203,15 +204,25 @@ const Component = () => {
             </div>
           </div>
         </Step>
+        <div className="fixed -translate-x-1/2 left-1/2 px-6 bottom-6 max-w-xl w-full">
+          <Button
+            disabled={Object.values(steps).some((step) => !step.isStepValid)}
+            className="bg-green-600 w-full  hover:bg-green-500 active:bg-green-500 shadow-2xl shadow-green-600"
+            onClick={() => patchMap({ isDraft: false })}
+          >
+            <CheckIcon className="mr-2 h-4 w-4" />
+            Enregistrer
+          </Button>
+        </div>
       </div>
 
       <CommandDialog
-        className="max-w-2xl w-full"
+        className="max-w-3xl w-full"
         open={openAddMovie}
         onOpenChange={(open) => {
           setOpenAddMovie(open);
           setQState('');
-          navigate({ search: { q: '', id: loadedId }, replace: true });
+          navigate({ search: { id: loadedId }, replace: true });
         }}
         shouldFilter={false}
       >
@@ -226,7 +237,7 @@ const Component = () => {
         <CommandList className="h-96">
           <CommandEmpty>No results found.</CommandEmpty>
 
-          {searchData.body
+          {(searchData?.status === 200 ? searchData.body : [])
             .filter(({ posterPath }) => !!posterPath)
             .map(({ title, id, posterPath, releaseDate }) => {
               const isSelected = mapData.movies.some((movie) => movie.tmdbId === id);
@@ -237,7 +248,7 @@ const Component = () => {
                   className="gap-2 items-center"
                   onSelect={() => (isSelected ? deleteMovieFromMap(dbId) : addMovieToMap(id))}
                   disabled={isLoading}
-                  key={title}
+                  key={`${title}${releaseDate}`}
                   value={`${title}${releaseDate}`}
                 >
                   <img
@@ -262,6 +273,44 @@ const Component = () => {
             })}
         </CommandList>
       </CommandDialog>
-    </>
+    </div>
   );
 };
+
+const Step = ({
+  title,
+  label,
+  step,
+  children,
+  isStepValid,
+  isPreviousStepsValid,
+  isFocus,
+}: {
+  title: string;
+  label: string;
+  step: number;
+  isPreviousStepsValid: boolean;
+  children: ReactNode;
+  isStepValid: boolean;
+  isFocus: boolean;
+}) => (
+  <div
+    className={cn('mb-12 px-6 py-8 transform duration-500 bg-background rounded-xl', {
+      'mb-8': isStepValid,
+      'opacity-50': !isPreviousStepsValid && !isFocus,
+      'shadow-xl': isFocus,
+    })}
+  >
+    <div className={cn('flex flex-row gap-4 sticky top-0 items-start bg-background')}>
+      <Typography id={`${title}`} variant={'h2'} className=" flex-1  pt-2">
+        {step}. {title}
+      </Typography>
+
+      <div className="border rounded-md h-12 mt-1 aspect-square flex flex-row items-center justify-center">
+        {isStepValid ? <CheckIcon className="w-6 h-6 text-green-500" /> : <Cross1Icon className="w-6 h-6 text-zinc-500" />}
+      </div>
+    </div>
+    <p className="mt-2 mb-4 text-sm text-muted-foreground">{label}</p>
+    {children}
+  </div>
+);

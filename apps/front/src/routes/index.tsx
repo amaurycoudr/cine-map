@@ -4,7 +4,7 @@ export const Route = createFileRoute('/')({
   component: () => (
     <div>
       Hello /!
-      <Link to="/createMap">On construction</Link>
+      <Link to="/create_map">On construction</Link>
     </div>
   ),
 });

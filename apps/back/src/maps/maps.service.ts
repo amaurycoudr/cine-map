@@ -48,10 +48,22 @@ export class MapsService {
     return res;
   }
 
-  async update(id: number, updateMapDto: UpdateMapDto) {
+  private async getMapAndCheckDraft(id: number) {
     const currentMap = await this.findOne(id);
 
     if (!currentMap) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
+
+    if (!currentMap.isDraft) return { code: ERRORS.NOT_EDITABLE, res: undefined };
+
+    return { code: ERRORS.VALID, res: currentMap };
+  }
+  async update(id: number, updateMapDto: UpdateMapDto) {
+    const result = await this.getMapAndCheckDraft(id);
+
+    if (result.code !== ERRORS.VALID) return result;
+
+    const currentMap = result.res;
+
     const { description, isDraft, title } = updateMapDto;
     const { id: _id, ...rest } = currentMap;
 
@@ -80,11 +92,13 @@ export class MapsService {
   }
 
   async addMovie(id: number, tmdbId: number) {
-    const currentMap = await this.findOne(id);
-    const insertedMovie = await this.tmdbService.handleMovie(tmdbId);
-    console.log(insertedMovie);
+    const mapCheck = await this.getMapAndCheckDraft(id);
+    if (mapCheck.code !== ERRORS.VALID) return mapCheck;
+    const currentMap = mapCheck.res;
 
-    if (!currentMap || !insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
+    const insertedMovie = await this.tmdbService.handleMovie(tmdbId);
+    if (!insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
+
     const result = await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });
     console.log(result);
 
@@ -94,6 +108,8 @@ export class MapsService {
   }
 
   async removeMovie(mapId: number, movieId: number) {
+    const result = await this.getMapAndCheckDraft(mapId);
+    if (result.code !== ERRORS.VALID) return result;
     await this.removeMoviesMaps({ mapId, movieId });
 
     const updatedMap = await this.findOne(mapId);

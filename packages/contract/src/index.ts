@@ -80,10 +80,13 @@ export const contract = c.router({
     }),
     responses: {
       200: mapSchema,
-      400: z.object(
-        { error: z.array(z.enum(['title', 'movies', 'description'])).openapi({ example: ['title', 'description'] }) },
-        { description: 'Response returned when one/multiple filed are invalid and isDraft is switch to false. Returned the list of invalid filed' },
-      ),
+      400: z
+        .object(
+          { error: z.array(z.enum(['title', 'movies', 'description'])).openapi({ example: ['title', 'description'] }) },
+          { description: 'Response returned when one/multiple filed are invalid and isDraft is switch to false. Returned the list of invalid filed' },
+        )
+        .or(z.object({ error: z.enum(['not editable map']) }, { description: 'Response returned when isDrat is false' })),
+
       404: z.object({ error: z.enum(['Not found']) }),
     },
   },
@@ -92,13 +95,21 @@ export const contract = c.router({
     path: '/maps/:id/movies',
     pathParams: z.object({ id: z.string().or(z.number()) }),
     body: z.object({ tmdbId: z.number() }),
-    responses: { 200: mapSchema },
+    responses: {
+      200: mapSchema,
+      400: z.object({ error: z.enum(['not editable map']) }, { description: 'Response returned when isDrat is false' }),
+      404: z.object({ error: z.enum(['Not found']) }),
+    },
   },
   deleteMovieFromMap: {
     method: 'DELETE',
     path: '/maps/:id/movies/:movieId',
     pathParams: z.object({ id: z.string().or(z.number()), movieId: z.string().or(z.number()) }),
     body: z.object({}),
-    responses: { 200: mapSchema },
+    responses: {
+      200: mapSchema,
+      400: z.object({ error: z.enum(['not editable map']) }, { description: 'Response returned when isDrat is false' }),
+      404: z.object({ error: z.enum(['Not found']) }),
+    },
   },
 });
