@@ -2,7 +2,10 @@
   "name": "cine-map",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "ci-all": "npm ci --workspaces  --if-present",
+    "dev-all": "npm run dev  --workspaces  --if-present"
+  },
   "author": "",
   "license": "ISC",
   "workspaces": [

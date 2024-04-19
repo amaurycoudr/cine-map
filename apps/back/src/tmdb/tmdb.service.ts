@@ -102,7 +102,7 @@ export class TmdbService {
   }
 
   async insertMovie(movieData: TmdbMovieDetails) {
-    const movieInDb = await this.moviesService.findOneByTitle(movieData.title);
+    const movieInDb = await this.moviesService.findOneByTitleAndDate(movieData.title, movieData.releaseDate);
     if (movieInDb) return { movie: movieInDb, isNew: false };
 
     const movie = await this.moviesService.create({
@@ -130,10 +130,14 @@ export class TmdbService {
       throw error;
     }
 
+    console.log(movieData);
+
     const {
       movie: { id: dbMovieId },
       isNew,
     } = await this.insertMovie(movieData);
+
+    console.log({ isNew });
 
     if (isNew) {
       this.insertPersons(tmdbId).then(({ cast, crew }) => {

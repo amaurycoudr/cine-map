@@ -66,7 +66,7 @@ export class MapsService {
 
     if (!newMap.isDraft && invalidAttributes.length > 0) return { code: ERRORS.INVALID_TO_SAVE, res: invalidAttributes };
 
-    await this.db.update(map).set(newMap);
+    await this.db.update(map).set(newMap).where(eq(map.id, id));
 
     return { code: ERRORS.VALID, res: { ...newMap, id } };
   }
@@ -82,8 +82,11 @@ export class MapsService {
   async addMovie(id: number, tmdbId: number) {
     const currentMap = await this.findOne(id);
     const insertedMovie = await this.tmdbService.handleMovie(tmdbId);
+    console.log(insertedMovie);
+
     if (!currentMap || !insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
-    await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });
+    const result = await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });
+    console.log(result);
 
     const updatedMap = await this.findOne(id);
 

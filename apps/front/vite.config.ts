@@ -6,6 +6,9 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), TanStackRouterVite()],
+  server: {
+    port: 4200,
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

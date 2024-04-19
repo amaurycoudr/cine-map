@@ -27,9 +27,9 @@ export class MoviesService {
     });
   }
 
-  findOneByTitle(title: string) {
+  findOneByTitleAndDate(title: string, date: string) {
     return this.db.query.movie.findFirst({
-      where: (movie, { eq }) => eq(movie.title, title),
+      where: (movie, { eq, and }) => and(eq(movie.title, title), eq(movie.releaseDate, date)),
     });
   }
 

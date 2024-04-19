@@ -3,15 +3,4 @@
         "skipLibCheck": true
     },
     "files": [],
-    "references": [
-        {
-            "path": "packages/contract"
-        },
-        {
-            "path": "apps/back"
-        },
-        {
-            "path": "apps/front"
-        },
-    ]
 }

@@ -7,12 +7,12 @@ COPY package-lock.json package-lock.json
 COPY tsconfig.json tsconfig.json
 
 COPY packages/contract/package.json packages/contract/package.json
-COPY apps/back/package.json apps/back/package.json
+COPY apps/front/package.json apps/front/package.json
 
 RUN npm run ci-all
 
 COPY packages/ packages/
-COPY apps/back/ apps/back/
+COPY apps/front/ apps/front/
 
 
 

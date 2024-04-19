@@ -1,24 +1,34 @@
 version: '3'
 services:
-  back: 
-   # restart: unless-stopped
+  back:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: apps/back/Dockerfile
-      target: development
-    # Mount host directory to docker container to support watch mode
-    volumes:
-      - ./apps/back/:/usr/src/app/
-      - /usr/src/app/node_modules/
-      - ./node_modules/@cine-map/contract/:/usr/src/app/node_modules/@cine-map/contract/
     env_file:
-      - apps/back/.env
+      - apps/back/docker.env
+    volumes:
+      - ./apps/back/:/usr/app/apps/back/
+      - ./packages/contract:/usr/app/packages/contract
     ports:
       - '3000:3000'
     depends_on:
       - db
-    command: npx nest start --watch 
-
+    command: npm run dev-all
+  front:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: apps/front/Dockerfile
+    volumes:
+      - ./apps/front/:/usr/app/apps/front/
+      - ./packages/contract:/usr/app/packages/contract
+      - /usr/app/apps/front/node_modules
+    ports:
+      - '4200:4200'
+    depends_on:
+      - back
+    command: npm run dev-all
   db:
     image: postgres
     restart: always

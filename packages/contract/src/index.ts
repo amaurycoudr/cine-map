@@ -9,7 +9,15 @@ const c = initContract();
 const mapSchema = z.object({
   id: z.number(),
   title: z.string().optional(),
-  movies: z.array(z.object({ id: z.number(), title: z.string(), posterPath: z.string().nullable().optional() })),
+  movies: z.array(
+    z.object({
+      id: z.number(),
+      title: z.string(),
+      posterPath: z.string().nullable().optional(),
+      tmdbId: z.number().nullable(),
+      releaseDate: z.string(),
+    }),
+  ),
   description: z.string().optional(),
   isDraft: z.boolean().optional(),
 });
@@ -82,14 +90,15 @@ export const contract = c.router({
   addMovieToMap: {
     method: 'POST',
     path: '/maps/:id/movies',
+    pathParams: z.object({ id: z.string().or(z.number()) }),
     body: z.object({ tmdbId: z.number() }),
     responses: { 200: mapSchema },
   },
   deleteMovieFromMap: {
     method: 'DELETE',
     path: '/maps/:id/movies/:movieId',
-    pathParams: z.object({ id: z.string(), movieId: z.string() }),
-    body: z.undefined(),
+    pathParams: z.object({ id: z.string().or(z.number()), movieId: z.string().or(z.number()) }),
+    body: z.object({}),
     responses: { 200: mapSchema },
   },
 });

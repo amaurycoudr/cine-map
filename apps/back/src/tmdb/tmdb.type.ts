@@ -1,14 +1,9 @@
 import { z } from 'zod';
-import {
-  Gender,
-  GENDERS,
-  getJobFromTmbDepartment,
-  getJobFromTmdb,
-} from '../utils/transco';
+import { Gender, GENDERS, getJobFromTmbDepartment, getJobFromTmdb } from '../utils/transco';
 
 export const tmdbMovieDetailsSchema = z
   .object({
-    backdrop_path: z.string(),
+    backdrop_path: z.string().nullable(),
     original_language: z.string(),
     original_title: z.string(),
     id: z.number(),
@@ -19,45 +14,24 @@ export const tmdbMovieDetailsSchema = z
     tagline: z.string(),
     title: z.string(),
   })
-  .transform(
-    ({
-      backdrop_path,
-      original_language,
-      original_title,
-      id,
-      overview,
-      poster_path,
-      release_date,
-      runtime,
-      tagline,
-      title,
-    }) => ({
-      backdropPath: backdrop_path,
-      originalLanguage: original_language,
-      tmdbId: id,
-      originalTitle: original_title,
-      overview,
-      posterPath: poster_path,
-      releaseDate: release_date,
-      runtime,
-      tagline,
-      title,
-    })
-  );
+  .transform(({ backdrop_path, original_language, original_title, id, overview, poster_path, release_date, runtime, tagline, title }) => ({
+    backdropPath: backdrop_path,
+    originalLanguage: original_language,
+    tmdbId: id,
+    originalTitle: original_title,
+    overview,
+    posterPath: poster_path,
+    releaseDate: release_date,
+    runtime,
+    tagline,
+    title,
+  }));
 
 export type TmdbMovieDetails = z.infer<typeof tmdbMovieDetailsSchema>;
 
 export const tmdbMovieCreditSchema = z.object({
-  cast: z.array(
-    z
-      .object({ id: z.number(), character: z.string() })
-      .transform(({ character, id }) => ({ tmdbId: id, character }))
-  ),
-  crew: z.array(
-    z
-      .object({ id: z.number(), job: z.string() })
-      .transform(({ id, job }) => ({ tmdbId: id, job: getJobFromTmdb(job) }))
-  ),
+  cast: z.array(z.object({ id: z.number(), character: z.string() }).transform(({ character, id }) => ({ tmdbId: id, character }))),
+  crew: z.array(z.object({ id: z.number(), job: z.string() }).transform(({ id, job }) => ({ tmdbId: id, job: getJobFromTmdb(job) }))),
 });
 
 export type TmdbMovieCredit = z.infer<typeof tmdbMovieCreditSchema>;
@@ -74,16 +48,14 @@ export const tmdbPersonDetailSchema = z
     known_for_department: z.string(),
     name: z.string(),
   })
-  .transform(
-    ({ birthday, deathday, gender, id, known_for_department, name }) => ({
-      birthday,
-      deathday,
-      gender: gender,
-      tmdbId: id,
-      knownFor: getJobFromTmbDepartment(known_for_department),
-      name,
-    })
-  );
+  .transform(({ birthday, deathday, gender, id, known_for_department, name }) => ({
+    birthday,
+    deathday,
+    gender: gender,
+    tmdbId: id,
+    knownFor: getJobFromTmbDepartment(known_for_department),
+    name,
+  }));
 export type TmdbPersonDetail = z.infer<typeof tmdbPersonDetailSchema>;
 
 export const tmdbSearchMovie = z
