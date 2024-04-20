@@ -60,11 +60,14 @@ export class TmdbService {
       }),
       20,
     );
+
     await this.personService.createWithNoConflict(tmdbCrew.map(({ person }) => person));
-    const detailedCrew = (await this.personService.findAllWithTmdbIds(tmdbCrew.map(({ person: { tmdbId } }) => tmdbId))).map(({ id, tmdbId }) => ({
-      personId: id,
-      job: tmdbCrew.find(({ person: { tmdbId: comparisonTmdbId } }) => comparisonTmdbId === tmdbId)!.job,
-    }));
+    const detailedCrew = tmdbCrew.length
+      ? (await this.personService.findAllWithTmdbIds(tmdbCrew.map(({ person: { tmdbId } }) => tmdbId))).map(({ id, tmdbId }) => ({
+          personId: id,
+          job: tmdbCrew.find(({ person: { tmdbId: comparisonTmdbId } }) => comparisonTmdbId === tmdbId)!.job,
+        }))
+      : [];
 
     const tmdbCast = await throttledPromises(
       cast,
@@ -74,11 +77,15 @@ export class TmdbService {
       }),
       20,
     );
+
     await this.personService.createWithNoConflict(tmdbCast.map(({ person }) => person));
-    const detailedCast = (await this.personService.findAllWithTmdbIds(tmdbCast.map(({ person: { tmdbId } }) => tmdbId))).map(({ id, tmdbId }) => ({
-      personId: id,
-      character: tmdbCast.find(({ person: { tmdbId: comparisonTmdbId } }) => comparisonTmdbId === tmdbId)!.character,
-    }));
+
+    const detailedCast = tmdbCast.length
+      ? (await this.personService.findAllWithTmdbIds(tmdbCast.map(({ person: { tmdbId } }) => tmdbId))).map(({ id, tmdbId }) => ({
+          personId: id,
+          character: tmdbCast.find(({ person: { tmdbId: comparisonTmdbId } }) => comparisonTmdbId === tmdbId)!.character,
+        }))
+      : [];
 
     return { cast: detailedCast, crew: detailedCrew };
   }
@@ -130,21 +137,20 @@ export class TmdbService {
       throw error;
     }
 
-    console.log(movieData);
-
     const {
       movie: { id: dbMovieId },
       isNew,
     } = await this.insertMovie(movieData);
 
-    console.log({ isNew });
-
     if (isNew) {
-      this.insertPersons(tmdbId).then(({ cast, crew }) => {
-        this.insertCast(cast, crew, dbMovieId);
-      });
+      try {
+        this.insertPersons(tmdbId).then(({ cast, crew }) => {
+          this.insertCast(cast, crew, dbMovieId);
+        });
+      } catch (error) {
+        console.error(error);
+      }
     }
-
     return {
       id: dbMovieId,
       isNewMovie: isNew,

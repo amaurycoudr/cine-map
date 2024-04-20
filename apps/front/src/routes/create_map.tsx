@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { client, queryClient } from '../client';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const mapQueryOptions = (id: number | undefined) =>
   queryOptions({
@@ -101,7 +102,7 @@ const Component = () => {
   const [openAddMovie, setOpenAddMovie] = useState(!!q);
 
   const { state: qState, debounceState: debouncedQState, setState: setQState } = useDebounceState(q ?? '');
-  const { data: searchData } = useQuery({
+  const { data: searchData, isLoading: isLoadingSearch } = useQuery({
     queryKey: ['tmdb-search', debouncedQState],
     queryFn: () => client.searchTmdb({ query: { q: debouncedQState } }),
     placeholderData: keepPreviousData,
@@ -195,29 +196,42 @@ const Component = () => {
             >
               Ajouter un film
             </Button>
-            <div className="flex flex-row gap-4 justify-between py-6 flex-wrap">
-              {mapData.movies.map(({ title, posterPath }) => (
-                <div className="h-48 aspect-[2/3]" key={posterPath}>
-                  <img alt={title} className="object-cover h-48 rounded-md shadow-lg " src={`https://image.tmdb.org/t/p/original/${posterPath}`} />
+            <div className="flex flex-col gap-8 justify-between">
+              {mapData.movies.map(({ title, posterPath, overview, id, releaseDate }) => (
+                <div key={`${title}${releaseDate}`} className="flex gap-4">
+                  <div className="h-48 self-center aspect-[2/3]" key={posterPath}>
+                    <img alt={title} className="object-cover rounded-md shadow-lg " src={`https://image.tmdb.org/t/p/original/${posterPath}`} />
+                  </div>
+                  <div className="flex flex-col flex-1">
+                    <Typography variant={'h2'}>
+                      {title} <span className="text-sm text-muted-foreground">({dayjs(releaseDate).format('DD/MM/YYYY')})</span>
+                    </Typography>
+                    <p className="mt-3 text-muted-foreground line-clamp-5 text-justify">{overview}</p>
+                  </div>
+                  <Button onClick={() => deleteMovieFromMap(id)} variant={'secondary'} className="self-center">
+                    Enlever
+                  </Button>
                 </div>
               ))}
             </div>
           </div>
         </Step>
         <div className="fixed -translate-x-1/2 left-1/2 px-6 bottom-6 max-w-xl w-full">
-          <Button
-            disabled={Object.values(steps).some((step) => !step.isStepValid)}
-            className="bg-green-600 w-full  hover:bg-green-500 active:bg-green-500 shadow-2xl shadow-green-600"
-            onClick={() => patchMap({ isDraft: false })}
-          >
-            <CheckIcon className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
+          <div className="bg-background rounded-lg">
+            <Button
+              disabled={Object.values(steps).some((step) => !step.isStepValid)}
+              className="bg-green-600 w-full  hover:bg-green-500 active:bg-green-500 shadow-2xl shadow-green-600"
+              onClick={() => patchMap({ isDraft: false })}
+            >
+              <CheckIcon className="mr-2 h-4 w-4" />
+              Enregistrer
+            </Button>
+          </div>
         </div>
       </div>
 
       <CommandDialog
-        className="max-w-3xl w-full"
+        className="max-w-2xl w-full"
         open={openAddMovie}
         onOpenChange={(open) => {
           setOpenAddMovie(open);
@@ -234,8 +248,30 @@ const Component = () => {
           }}
           value={qState}
         />
-        <CommandList className="h-96">
-          <CommandEmpty>No results found.</CommandEmpty>
+        <CommandList className="h-96 px-2">
+          <CommandEmpty className="flex flex-1 justify-center flex-col">
+            {isLoadingSearch &&
+              Array(10)
+                .fill(undefined)
+                .map(() => (
+                  <div className="relative flex select-none rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground gap-2 items-center">
+                    <Skeleton className="h-24 aspect-[2/3] rounded-md" />
+                    <div className="flex flex-col gap-2">
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                      <Skeleton className="h-4 w-12 rounded-full" />
+                    </div>
+                    <div className="flex-1" />
+                    <Skeleton className="h-10 w-20" />
+                  </div>
+                ))}
+            {!isLoadingSearch && (
+              <div className="p-10 justify-center flex">
+                <Typography variant={'h4'} className=" self-center">
+                  {!debouncedQState ? 'On attend vos intructions chef !' : 'Rien de connu sous ce nom chef !'}
+                </Typography>
+              </div>
+            )}
+          </CommandEmpty>
 
           {(searchData?.status === 200 ? searchData.body : [])
             .filter(({ posterPath }) => !!posterPath)
@@ -295,7 +331,7 @@ const Step = ({
   isFocus: boolean;
 }) => (
   <div
-    className={cn('mb-12 px-6 py-8 transform duration-500 bg-background rounded-xl', {
+    className={cn('mb-12 px-6 py-8 border transform duration-500 bg-background rounded-xl', {
       'mb-8': isStepValid,
       'opacity-50': !isPreviousStepsValid && !isFocus,
       'shadow-xl': isFocus,

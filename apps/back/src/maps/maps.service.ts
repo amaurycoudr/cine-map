@@ -97,6 +97,8 @@ export class MapsService {
     const currentMap = mapCheck.res;
 
     const insertedMovie = await this.tmdbService.handleMovie(tmdbId);
+    console.log(insertedMovie);
+
     if (!insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
 
     const result = await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });

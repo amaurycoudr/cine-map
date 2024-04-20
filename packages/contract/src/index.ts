@@ -16,6 +16,7 @@ const mapSchema = z.object({
       posterPath: z.string().nullable().optional(),
       tmdbId: z.number().nullable(),
       releaseDate: z.string(),
+      overview: z.string().nullable().optional(),
     }),
   ),
   description: z.string().optional(),

@@ -99,7 +99,6 @@ const CommandItem = React.forwardRef<React.ElementRef<typeof CommandPrimitive.It
         className,
       )}
       {...props}
-      disabled={false}
     />
   ),
 );
