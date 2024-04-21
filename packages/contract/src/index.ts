@@ -43,16 +43,6 @@ export const contract = c.router({
       q: z.string(),
     }),
   },
-  postTmdbMovie: {
-    method: 'POST',
-    path: '/tmdb/movie/:id',
-    body: z.object({}),
-    pathParams: z.object({ id: z.string().or(z.number()) }),
-    responses: {
-      201: z.object({ id: z.number() }),
-      404: z.object({ error: z.string() }),
-    },
-  },
   createMap: {
     method: 'POST',
     path: '/maps',

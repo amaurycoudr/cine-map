@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import defaultTheme from 'tailwindcss/defaultTheme';
 export const darkMode = ['class'];
 export const content = ['./pages/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}', './index.html'];
 export const prefix = '';
@@ -60,6 +61,9 @@ export const theme = {
         from: { height: 'var(--radix-accordion-content-height)' },
         to: { height: '0' },
       },
+    },
+    fontFamily: {
+      serif: ['Merriweather', ...defaultTheme.fontFamily.serif],
     },
     animation: {
       'accordion-down': 'accordion-down 0.2s ease-out',
