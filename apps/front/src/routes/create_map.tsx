@@ -331,7 +331,7 @@ const Step = ({
   isFocus: boolean;
 }) => (
   <div
-    className={cn('mb-12 px-6 py-8 border transform duration-500 bg-background rounded-xl', {
+    className={cn('mb-12 px-6 py-8 border transform  shadow duration-300 bg-background rounded-xl', {
       'mb-8': isStepValid,
       'opacity-50': !isPreviousStepsValid && !isFocus,
       'shadow-xl': isFocus,
