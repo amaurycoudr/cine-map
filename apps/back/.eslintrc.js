@@ -20,6 +20,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'prefer-template': 'error',
     'no-unused-vars': 'off',
+    'no-console': 'error',
     '@typescript-eslint/no-unused-vars': [
       'error', // or "error"
       {

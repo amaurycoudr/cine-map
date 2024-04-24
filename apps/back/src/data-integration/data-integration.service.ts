@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { MoviesService } from 'src/movies/movies.service';
 import { PersonsService } from 'src/persons/persons.service';
 import { TmdbService } from 'src/tmdb/tmdb.service';
 import { TmdbMovieDetails } from 'src/tmdb/tmdb.type';
-import { Jobs, JOBS_TRANSCO } from 'src/utils/transco';
+import { JOBS_TRANSCO } from 'src/utils/transco';
 
+//get(DataIntegrationService).handleMovie(238, true)
 @Injectable()
 export class DataIntegrationService {
   constructor(
@@ -13,6 +14,8 @@ export class DataIntegrationService {
     private readonly personService: PersonsService,
     private readonly tmdbService: TmdbService,
   ) {}
+
+  private readonly logger = new Logger(DataIntegrationService.name);
 
   async insertPersons<T extends { tmdbId: number }>(tmdbIds: T[]) {
     const persons = await this.tmdbService.getPersons(tmdbIds);
@@ -24,39 +27,20 @@ export class DataIntegrationService {
       return { personId: id, ...rest };
     });
   }
-  async insertAllMoviePersons(movieId: number) {
-    const { cast, crew } = await this.tmdbService.getCredits(movieId);
-
+  async insertCredits(tmdbId: number) {
+    const { cast, crew } = await this.tmdbService.getCredits(tmdbId);
     const detailedCrew = await this.insertPersons(crew.filter(({ job }) => job !== JOBS_TRANSCO.unknown));
+    await this.moviesService.createCrew(detailedCrew.map(({ job, personId }) => ({ movieId: tmdbId, personId, job })));
+    this.logStep(tmdbId, 'crew inserted on the db');
 
     const detailedCast = await this.insertPersons(cast);
+    await this.moviesService.createCast(detailedCast.map(({ character, personId }) => ({ character, movieId: tmdbId, personId })));
 
-    return { cast: detailedCast, crew: detailedCrew };
+    this.logStep(tmdbId, 'cast inserted on the db');
   }
 
-  async insertCredits(cast: { character: string; personId: number }[], crew: { personId: number; job: Jobs }[], movieId: number) {
-    await this.moviesService.createCast(
-      cast.map(({ character, personId }) => ({
-        character,
-        movieId: movieId,
-        personId,
-      })),
-    );
-
-    await this.moviesService.createCrew(
-      crew.map(({ job, personId }) => ({
-        movieId: movieId,
-        personId,
-        job,
-      })),
-    );
-  }
-
-  async insertMovie(movieData: TmdbMovieDetails) {
-    const movieInDb = await this.moviesService.findOneByTitleAndDate(movieData.title, movieData.releaseDate);
-    if (movieInDb) return { movie: movieInDb, isNew: false };
-
-    const movie = await this.moviesService.create({
+  async insertMovie(movieData: TmdbMovieDetails, isReplaced: boolean) {
+    const dto = {
       duration: movieData.runtime,
       tmdbId: movieData.tmdbId,
       originalLanguage: movieData.originalLanguage,
@@ -65,39 +49,41 @@ export class DataIntegrationService {
       posterPath: movieData.posterPath,
       releaseDate: movieData.releaseDate,
       tagLine: movieData.tagline,
-    });
+    };
 
-    return { movie, isNew: true };
+    const movie = await (isReplaced ? this.moviesService.update(dto) : this.moviesService.create(dto));
+
+    this.logStep(movieData.tmdbId, 'inserted on the db');
+    return { movie };
   }
 
-  async handleMovie(tmdbId: number) {
+  async handleMovie(tmdbId: number, replace = false) {
+    this.logStep(tmdbId, 'start integrating');
+    const existingMovie = await this.moviesService.findByTmdbId(tmdbId);
+    if (existingMovie && !replace) {
+      this.logStep(tmdbId, 'already in DB');
+      return { id: existingMovie.id };
+    }
     let movieData: TmdbMovieDetails;
     try {
       movieData = await this.tmdbService.getMovie(tmdbId);
+      this.logStep(tmdbId, 'gotten form TMDbB');
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status == 404) {
+        this.logStep(tmdbId, 'not found on TMDB');
         return undefined;
       }
       throw error;
     }
 
-    const {
-      movie: { id: dbMovieId },
-      isNew,
-    } = await this.insertMovie(movieData);
+    const { id } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
 
-    if (isNew) {
-      try {
-        this.insertAllMoviePersons(tmdbId).then(({ cast, crew }) => {
-          this.insertCredits(cast, crew, dbMovieId);
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    return {
-      id: dbMovieId,
-      isNewMovie: isNew,
-    };
+    this.insertCredits(id);
+
+    return { id };
+  }
+
+  private logStep(tmdbId: number, msg: string) {
+    this.logger.log(`[MOVIE Tmdb Id: ${tmdbId}] ${msg}`);
   }
 }

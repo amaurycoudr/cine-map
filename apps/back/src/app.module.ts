@@ -10,6 +10,7 @@ import { PersonsModule } from './persons/persons.module';
 import { TmdbModule } from './tmdb/tmdb.module';
 import { zOA } from './utils/z';
 import { DataIntegrationModule } from './data-integration/data-integration.module';
+import { AllocineModule } from './allocine/allocine.module';
 
 const configSchema = zOA.object({
   DB_PASSWORD: zOA.string(),
@@ -32,6 +33,7 @@ export type Config = zOA.infer<typeof configSchema>;
     PersonsModule,
     MapsModule,
     DataIntegrationModule,
+    AllocineModule,
   ],
   controllers: [AppController],
   providers: [AppService],

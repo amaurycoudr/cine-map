@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { DataIntegrationService } from 'src/data-integration/data-integration.service';
-import { map, moviesMaps } from 'src/drizzle/schema';
+import { maps, moviesMaps } from 'src/drizzle/schema';
 import { SelectMovie } from 'src/movies/movies.types';
 import { ERRORS, NOT_FOUND } from 'src/utils/errors';
 import { Database, DrizzleProvider } from '../drizzle/drizzle.provider';
@@ -16,7 +16,7 @@ export class MapsService {
   constructor(private readonly dataIntegrationService: DataIntegrationService) {}
 
   async create() {
-    const newMap = (await this.db.insert(map).values({ isDraft: true }).returning())[0];
+    const newMap = (await this.db.insert(maps).values({ isDraft: true }).returning())[0];
     return { ...newMap, movies: [] as SelectMovie[] };
   }
 
@@ -25,7 +25,7 @@ export class MapsService {
   }
 
   async findOne(id: number) {
-    const res = await this.db.query.map.findFirst({
+    const res = await this.db.query.maps.findFirst({
       where: (map, { eq }) => eq(map.id, id),
       with: { movies: { with: { movie: true }, columns: { mapId: false, movieId: false } } },
     });
@@ -74,7 +74,7 @@ export class MapsService {
 
     if (!newMap.isDraft && invalidAttributes.length > 0) return { code: ERRORS.INVALID_TO_SAVE, res: invalidAttributes };
 
-    await this.db.update(map).set(newMap).where(eq(map.id, id));
+    await this.db.update(maps).set(newMap).where(eq(maps.id, id));
 
     return { code: ERRORS.VALID, res: { ...newMap, id } };
   }
@@ -93,12 +93,10 @@ export class MapsService {
     const currentMap = mapCheck.res;
 
     const insertedMovie = await this.dataIntegrationService.handleMovie(tmdbId);
-    console.log(insertedMovie);
 
     if (!insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
 
-    const result = await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });
-    console.log(result);
+    await this.createMoviesMaps({ mapId: currentMap.id, movieId: insertedMovie.id });
 
     const updatedMap = await this.findOne(id);
 

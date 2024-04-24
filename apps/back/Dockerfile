@@ -9,6 +9,7 @@ COPY tsconfig.json tsconfig.json
 COPY packages/contract/package.json packages/contract/package.json
 COPY apps/back/package.json apps/back/package.json
 
+
 RUN npm run ci-all
 
 COPY packages/ packages/

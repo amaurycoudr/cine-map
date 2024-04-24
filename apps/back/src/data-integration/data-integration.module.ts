@@ -9,5 +9,6 @@ import { DataIntegrationController } from './data-integration.controller';
   providers: [DataIntegrationService],
   imports: [TmdbModule, MoviesModule, PersonsModule],
   controllers: [DataIntegrationController],
+  exports: [DataIntegrationService],
 })
 export class DataIntegrationModule {}

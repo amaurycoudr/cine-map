@@ -6,6 +6,7 @@
         "*.css": "tailwindcss"
     },
     "cSpell.words": [
+        "Allocine",
         "tmdb"
     ]
 }

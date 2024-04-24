@@ -5,7 +5,7 @@ import { GENDERS, JOBS } from '../utils/transco';
 export const genderEnum = pgEnum('gender', GENDERS);
 export const jobEnum = pgEnum('job', JOBS);
 
-export const movie = pgTable(
+export const movies = pgTable(
   'movie',
   {
     id: serial('id').primaryKey().notNull(),
@@ -23,54 +23,54 @@ export const movie = pgTable(
   }),
 );
 
-export const movieRelations = relations(movie, ({ many }) => ({
-  cast: many(cast),
-  crew: many(crew),
+export const moviesRelations = relations(movies, ({ many }) => ({
+  cast: many(casts),
+  crew: many(crews),
   maps: many(moviesMaps),
 }));
 
-export const cast = pgTable(
+export const casts = pgTable(
   'cast',
 
   {
     movieId: integer('movie_id')
       .notNull()
-      .references(() => movie.id, { onDelete: 'cascade' }),
+      .references(() => movies.id, { onDelete: 'cascade' }),
     personId: integer('person_id')
       .notNull()
-      .references(() => person.id, { onDelete: 'cascade' }),
+      .references(() => persons.id, { onDelete: 'cascade' }),
     character: varchar('character', { length: 256 }).notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.personId, t.movieId, t.character] }),
   }),
 );
-export const castRelations = relations(cast, ({ one }) => ({
-  movie: one(movie, { fields: [cast.movieId], references: [movie.id] }),
-  person: one(person, { fields: [cast.personId], references: [person.id] }),
+export const castsRelations = relations(casts, ({ one }) => ({
+  movie: one(movies, { fields: [casts.movieId], references: [movies.id] }),
+  person: one(persons, { fields: [casts.personId], references: [persons.id] }),
 }));
 
-export const crew = pgTable(
+export const crews = pgTable(
   'crew',
   {
     movieId: integer('movie_id')
       .notNull()
-      .references(() => movie.id, { onDelete: 'cascade' }),
+      .references(() => movies.id, { onDelete: 'cascade' }),
     personId: integer('person_id')
       .notNull()
-      .references(() => person.id, { onDelete: 'cascade' }),
+      .references(() => persons.id, { onDelete: 'cascade' }),
     job: jobEnum('job').notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.personId, t.movieId, t.job] }),
   }),
 );
-export const crewRelations = relations(crew, ({ one }) => ({
-  movie: one(movie, { fields: [crew.movieId], references: [movie.id] }),
-  person: one(person, { fields: [crew.personId], references: [person.id] }),
+export const crewsRelations = relations(crews, ({ one }) => ({
+  movie: one(movies, { fields: [crews.movieId], references: [movies.id] }),
+  person: one(persons, { fields: [crews.personId], references: [persons.id] }),
 }));
 
-export const person = pgTable(
+export const persons = pgTable(
   'person',
   {
     id: serial('id').primaryKey().notNull(),
@@ -86,19 +86,19 @@ export const person = pgTable(
   }),
 );
 
-export const personRelations = relations(person, ({ many }) => ({
-  acting_jobs: many(cast),
-  production_jobs: many(crew),
+export const personsRelations = relations(persons, ({ many }) => ({
+  acting_jobs: many(casts),
+  production_jobs: many(crews),
 }));
 
-export const map = pgTable('map', {
+export const maps = pgTable('map', {
   id: serial('id').primaryKey().notNull(),
   title: text('title').notNull().default(''),
   description: text('description').notNull().default(''),
   isDraft: boolean('is_draft').notNull().default(true),
 });
 
-export const mapRelations = relations(map, ({ many }) => ({
+export const mapsRelations = relations(maps, ({ many }) => ({
   movies: many(moviesMaps),
 }));
 
@@ -107,10 +107,10 @@ export const moviesMaps = pgTable(
   {
     movieId: integer('movie_id')
       .notNull()
-      .references(() => movie.id, { onDelete: 'cascade' }),
+      .references(() => movies.id, { onDelete: 'cascade' }),
     mapId: integer('map_id')
       .notNull()
-      .references(() => map.id, { onDelete: 'cascade' }),
+      .references(() => maps.id, { onDelete: 'cascade' }),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.mapId, t.movieId] }),
@@ -118,6 +118,14 @@ export const moviesMaps = pgTable(
 );
 
 export const moviesMapsRelations = relations(moviesMaps, ({ one }) => ({
-  movie: one(movie, { fields: [moviesMaps.movieId], references: [movie.id] }),
-  map: one(map, { fields: [moviesMaps.mapId], references: [map.id] }),
+  movie: one(movies, { fields: [moviesMaps.movieId], references: [movies.id] }),
+  map: one(maps, { fields: [moviesMaps.mapId], references: [maps.id] }),
 }));
+
+export const allocineRatings = pgTable('allocine_rating', {
+  movieId: integer('movie_id')
+    .notNull()
+    .references(() => movies.id, { onDelete: 'cascade' }),
+  critic: integer('critic'),
+  spectator: integer('spectator'),
+});

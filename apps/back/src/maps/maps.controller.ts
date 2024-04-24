@@ -11,8 +11,6 @@ export class MapsController {
   @TsRestHandler(contract.createMap)
   create() {
     return tsRestHandler(contract.createMap, async () => {
-      console.log('didid');
-
       return { body: await this.mapsService.create(), status: 201 };
     });
   }
