@@ -9,6 +9,7 @@ import { MoviesModule } from './movies/movies.module';
 import { PersonsModule } from './persons/persons.module';
 import { TmdbModule } from './tmdb/tmdb.module';
 import { zOA } from './utils/z';
+import { DataIntegrationModule } from './data-integration/data-integration.module';
 
 const configSchema = zOA.object({
   DB_PASSWORD: zOA.string(),
@@ -30,6 +31,7 @@ export type Config = zOA.infer<typeof configSchema>;
     MoviesModule,
     PersonsModule,
     MapsModule,
+    DataIntegrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

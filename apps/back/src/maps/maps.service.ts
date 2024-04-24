@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { and, eq } from 'drizzle-orm';
+import { DataIntegrationService } from 'src/data-integration/data-integration.service';
 import { map, moviesMaps } from 'src/drizzle/schema';
+import { SelectMovie } from 'src/movies/movies.types';
 import { ERRORS, NOT_FOUND } from 'src/utils/errors';
 import { Database, DrizzleProvider } from '../drizzle/drizzle.provider';
 import { CreateMoviesMapsDto, UpdateMapDto } from './maps.types';
-import { SelectMovie } from 'src/movies/movies.types';
-import { TmdbService } from 'src/tmdb/tmdb.service';
-import { and, eq } from 'drizzle-orm';
 
 type MapFind = NonNullable<Awaited<ReturnType<MapsService['findOne']>>>;
 
@@ -13,7 +13,7 @@ type MapFind = NonNullable<Awaited<ReturnType<MapsService['findOne']>>>;
 export class MapsService {
   @Inject(DrizzleProvider) private db: Database;
 
-  constructor(private readonly tmdbService: TmdbService) {}
+  constructor(private readonly dataIntegrationService: DataIntegrationService) {}
 
   async create() {
     const newMap = (await this.db.insert(map).values({ isDraft: true }).returning())[0];
@@ -27,20 +27,17 @@ export class MapsService {
   async findOne(id: number) {
     const res = await this.db.query.map.findFirst({
       where: (map, { eq }) => eq(map.id, id),
-      with: {
-        movies: { with: { movie: true }, columns: { mapId: false, movieId: false } },
-      },
+      with: { movies: { with: { movie: true }, columns: { mapId: false, movieId: false } } },
     });
+
     if (!res) return;
 
-    return {
-      ...res,
-      movies: res.movies.map(({ movie }) => movie),
-    };
+    return { ...res, movies: res.movies.map(({ movie }) => movie) };
   }
 
   private getInvalidAttributes(newMap: Omit<MapFind, 'id'>): ('title' | 'movies' | 'description')[] {
     const res: ('title' | 'movies' | 'description')[] = [];
+
     if ((newMap.title?.length || 0) < 3) res.push('title');
     if (newMap.movies.length < 3) res.push('movies');
     if (newMap.description.length < 10) res.push('description');
@@ -52,7 +49,6 @@ export class MapsService {
     const currentMap = await this.findOne(id);
 
     if (!currentMap) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
-
     if (!currentMap.isDraft) return { code: ERRORS.NOT_EDITABLE, res: undefined };
 
     return { code: ERRORS.VALID, res: currentMap };
@@ -96,7 +92,7 @@ export class MapsService {
     if (mapCheck.code !== ERRORS.VALID) return mapCheck;
     const currentMap = mapCheck.res;
 
-    const insertedMovie = await this.tmdbService.handleMovie(tmdbId);
+    const insertedMovie = await this.dataIntegrationService.handleMovie(tmdbId);
     console.log(insertedMovie);
 
     if (!insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;

@@ -17,14 +17,19 @@ const delayMS = (t = 200) => {
     }, t);
   });
 };
-export const throttledPromises = <T, R>(items: T[] = [], asyncFunction: (arg: T) => Promise<R>, batchSize = 1, delay = 0): Promise<R[]> => {
+export const throttledPromises = <Input, Output>(
+  items: Input[] = [],
+  asyncFunction: (arg: Input) => Promise<Output>,
+  batchSize = 1,
+  delay = 0,
+): Promise<Output[]> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
-    const output: R[] = [];
+    const output: Output[] = [];
     const batches = split(items, batchSize);
 
     await asyncForEach(batches, async (batch) => {
-      const promises = batch.map(asyncFunction).map((p) => p.catch(reject)) as Promise<R>[];
+      const promises = batch.map(asyncFunction).map((p) => p.catch(reject)) as Promise<Output>[];
       const results = await Promise.all(promises);
       output.push(...results);
       await delayMS(delay);
@@ -32,3 +37,7 @@ export const throttledPromises = <T, R>(items: T[] = [], asyncFunction: (arg: T)
     resolve(output);
   });
 };
+
+export function isKeyOfObject<T extends object>(key: string | number | symbol, obj: T): key is keyof T {
+  return key in obj;
+}

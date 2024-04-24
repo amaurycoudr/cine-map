@@ -16,7 +16,8 @@ export class PersonsService {
   }
 
   async findAllWithTmdbIds(ids: number[]) {
-    return this.db.query.person.findMany({
+    if (ids.length === 0) return [];
+    return await this.db.query.person.findMany({
       where: (person, { inArray }) => inArray(person.tmdbId, ids),
     });
   }

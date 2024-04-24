@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MapsService } from './maps.service';
+import { DataIntegrationModule } from 'src/data-integration/data-integration.module';
 import { MapsController } from './maps.controller';
-import { TmdbModule } from 'src/tmdb/tmdb.module';
+import { MapsService } from './maps.service';
 
 @Module({
-  imports: [TmdbModule],
+  imports: [DataIntegrationModule],
   controllers: [MapsController],
   providers: [MapsService],
 })
