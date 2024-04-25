@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateAllocineRatingsDto, CreateCastDto, CreateCrewDto, CreateMovieDto, UpdateMovieDto } from './movies.types';
 import { Database, DrizzleProvider } from '../drizzle/drizzle.provider';
 import { allocineRatings, casts, crews, movies } from '../drizzle/schema';
-import { and, eq, or } from 'drizzle-orm';
+import { and, asc, eq, or } from 'drizzle-orm';
 
 @Injectable()
 export class MoviesService {
@@ -17,8 +17,10 @@ export class MoviesService {
       where: (movie, { eq }) => eq(movie.id, id),
       with: {
         cast: {
-          columns: { character: true },
+          columns: { character: true, order: true },
           with: { person: true },
+          orderBy: asc(casts.order),
+          limit: 10,
         },
         crew: {
           columns: { job: true },

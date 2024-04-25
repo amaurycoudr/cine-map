@@ -8,6 +8,13 @@
       "when": 1714032376947,
       "tag": "0000_known_deadpool",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1714035775785,
+      "tag": "0001_ordinary_callisto",
+      "breakpoints": true
     }
   ]
 }

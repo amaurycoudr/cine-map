@@ -35,8 +35,9 @@ export class DataIntegrationService {
     await this.moviesService.createCrew(detailedCrew.map(({ job, personId }) => ({ movieId, personId, job })));
     this.logStep(tmdbId, 'crew inserted on the db');
 
-    const detailedCast = await this.insertPersons(cast);
-    await this.moviesService.createCast(detailedCast.map(({ character, personId }) => ({ character, movieId, personId })));
+    const detailedCast = await this.insertPersons(cast.sort((actor1, actor2) => -actor2.order + actor1.order));
+
+    await this.moviesService.createCast(detailedCast.map(({ character, order, personId }) => ({ character, order, movieId, personId })));
 
     this.logStep(tmdbId, 'cast inserted on the db');
   }

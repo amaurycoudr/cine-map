@@ -41,6 +41,7 @@ export const casts = pgTable(
       .notNull()
       .references(() => persons.id, { onDelete: 'cascade' }),
     character: varchar('character', { length: 256 }).notNull(),
+    order: integer('order'),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.personId, t.movieId, t.character] }),
