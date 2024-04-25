@@ -1,1 +1,0 @@
-ALTER TABLE "map" ADD COLUMN "is_draft" boolean;

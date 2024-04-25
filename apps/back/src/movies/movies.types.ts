@@ -1,5 +1,5 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { casts, crews, movies } from '../drizzle/schema';
+import { allocineRatings, casts, crews, movies } from '../drizzle/schema';
 import { z } from 'zod';
 
 export const insertMovieSchema = createInsertSchema(movies);
@@ -18,3 +18,7 @@ export type CreateCastDto = z.infer<typeof insertCastSchema>;
 export const insertCrewSchema = createInsertSchema(crews);
 
 export type CreateCrewDto = z.infer<typeof insertCrewSchema>;
+
+export const insertAllocineRatings = createInsertSchema(allocineRatings);
+
+export type CreateAllocineRatingsDto = z.infer<typeof insertAllocineRatings>;

@@ -10,6 +10,12 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "allocine_rating" (
+	"movie_id" integer NOT NULL,
+	"critic" integer,
+	"spectator" integer
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cast" (
 	"movie_id" integer NOT NULL,
 	"person_id" integer NOT NULL,
@@ -26,8 +32,9 @@ CREATE TABLE IF NOT EXISTS "crew" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "map" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"title" text,
-	"description" text
+	"title" text DEFAULT '' NOT NULL,
+	"description" text DEFAULT '' NOT NULL,
+	"is_draft" boolean DEFAULT true NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "movie" (
@@ -61,6 +68,12 @@ CREATE TABLE IF NOT EXISTS "person" (
 );
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "allocine_rating" ADD CONSTRAINT "allocine_rating_movie_id_movie_id_fk" FOREIGN KEY ("movie_id") REFERENCES "movie"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "cast" ADD CONSTRAINT "cast_movie_id_movie_id_fk" FOREIGN KEY ("movie_id") REFERENCES "movie"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -91,7 +104,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "movies_maps" ADD CONSTRAINT "movies_maps_map_id_person_id_fk" FOREIGN KEY ("map_id") REFERENCES "person"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "movies_maps" ADD CONSTRAINT "movies_maps_map_id_map_id_fk" FOREIGN KEY ("map_id") REFERENCES "map"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

@@ -1,9 +1,51 @@
 {
-  "id": "0807c2a5-dc65-4e9a-b8ad-140260c3365a",
+  "id": "66b615b9-4121-44bc-a4f1-e548f9974fab",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
+    "allocine_rating": {
+      "name": "allocine_rating",
+      "schema": "",
+      "columns": {
+        "movie_id": {
+          "name": "movie_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "critic": {
+          "name": "critic",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "spectator": {
+          "name": "spectator",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "allocine_rating_movie_id_movie_id_fk": {
+          "name": "allocine_rating_movie_id_movie_id_fk",
+          "tableFrom": "allocine_rating",
+          "tableTo": "movie",
+          "columnsFrom": [
+            "movie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "cast": {
       "name": "cast",
       "schema": "",
@@ -146,13 +188,22 @@
           "name": "title",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
+        },
+        "is_draft": {
+          "name": "is_draft",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         }
       },
       "indexes": {},
@@ -265,10 +316,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "movies_maps_map_id_person_id_fk": {
-          "name": "movies_maps_map_id_person_id_fk",
+        "movies_maps_map_id_map_id_fk": {
+          "name": "movies_maps_map_id_map_id_fk",
           "tableFrom": "movies_maps",
-          "tableTo": "person",
+          "tableTo": "map",
           "columnsFrom": [
             "map_id"
           ],

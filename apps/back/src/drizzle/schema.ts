@@ -23,10 +23,11 @@ export const movies = pgTable(
   }),
 );
 
-export const moviesRelations = relations(movies, ({ many }) => ({
+export const moviesRelations = relations(movies, ({ many, one }) => ({
   cast: many(casts),
   crew: many(crews),
   maps: many(moviesMaps),
+  allocineRating: one(allocineRatings),
 }));
 
 export const casts = pgTable(

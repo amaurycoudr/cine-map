@@ -92,7 +92,7 @@ export class MapsService {
     if (mapCheck.code !== ERRORS.VALID) return mapCheck;
     const currentMap = mapCheck.res;
 
-    const insertedMovie = await this.dataIntegrationService.handleMovie(tmdbId);
+    const insertedMovie = await this.dataIntegrationService.handleTmdbMovie(tmdbId);
 
     if (!insertedMovie) return { code: ERRORS.NOT_FOUND, res: NOT_FOUND } as const;
 

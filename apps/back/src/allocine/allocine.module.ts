@@ -3,5 +3,6 @@ import { AllocineService } from './allocine.service';
 
 @Module({
   providers: [AllocineService],
+  exports: [AllocineService],
 })
 export class AllocineModule {}

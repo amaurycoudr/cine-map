@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
+import { AllocineService } from 'src/allocine/allocine.service';
 import { MoviesService } from 'src/movies/movies.service';
 import { PersonsService } from 'src/persons/persons.service';
 import { TmdbService } from 'src/tmdb/tmdb.service';
@@ -13,6 +14,7 @@ export class DataIntegrationService {
     private readonly moviesService: MoviesService,
     private readonly personService: PersonsService,
     private readonly tmdbService: TmdbService,
+    private readonly allocineService: AllocineService,
   ) {}
 
   private readonly logger = new Logger(DataIntegrationService.name);
@@ -27,14 +29,14 @@ export class DataIntegrationService {
       return { personId: id, ...rest };
     });
   }
-  async insertCredits(tmdbId: number) {
+  async insertCredits(tmdbId: number, movieId: number) {
     const { cast, crew } = await this.tmdbService.getCredits(tmdbId);
     const detailedCrew = await this.insertPersons(crew.filter(({ job }) => job !== JOBS_TRANSCO.unknown));
-    await this.moviesService.createCrew(detailedCrew.map(({ job, personId }) => ({ movieId: tmdbId, personId, job })));
+    await this.moviesService.createCrew(detailedCrew.map(({ job, personId }) => ({ movieId, personId, job })));
     this.logStep(tmdbId, 'crew inserted on the db');
 
     const detailedCast = await this.insertPersons(cast);
-    await this.moviesService.createCast(detailedCast.map(({ character, personId }) => ({ character, movieId: tmdbId, personId })));
+    await this.moviesService.createCast(detailedCast.map(({ character, personId }) => ({ character, movieId, personId })));
 
     this.logStep(tmdbId, 'cast inserted on the db');
   }
@@ -57,7 +59,7 @@ export class DataIntegrationService {
     return { movie };
   }
 
-  async handleMovie(tmdbId: number, replace = false) {
+  async handleTmdbMovie(tmdbId: number, replace = false) {
     this.logStep(tmdbId, 'start integrating');
     const existingMovie = await this.moviesService.findByTmdbId(tmdbId);
     if (existingMovie && !replace) {
@@ -67,7 +69,7 @@ export class DataIntegrationService {
     let movieData: TmdbMovieDetails;
     try {
       movieData = await this.tmdbService.getMovie(tmdbId);
-      this.logStep(tmdbId, 'gotten form TMDbB');
+      this.logStep(tmdbId, 'gotten from TMDbB');
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status == 404) {
         this.logStep(tmdbId, 'not found on TMDB');
@@ -78,9 +80,14 @@ export class DataIntegrationService {
 
     const { id } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
 
-    this.insertCredits(id);
+    this.insertCredits(tmdbId, id);
 
     return { id };
+  }
+  async insertAllocineRatings({ id, title }: { id: number; title: string }, tmdbId: number) {
+    const { criticRating, spectatorRating } = await this.allocineService.getRatings(title);
+    await this.moviesService.createAllocineRatings({ movieId: id, critic: criticRating, spectator: spectatorRating });
+    this.logStep(tmdbId, 'allocine ratings inserted on the db');
   }
 
   private logStep(tmdbId: number, msg: string) {

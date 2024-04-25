@@ -12,6 +12,7 @@ export class AllocineService {
   constructor() {
     this.axiosClient = axios.create({ baseURL: ALLOCINE_URL });
   }
+
   async getRatings(title: string) {
     const { data } = await this.axiosClient.get(`/rechercher/?q=${encodeURI(title)}`);
 
@@ -32,7 +33,7 @@ export class AllocineService {
     return { spectatorRating: res?.spectatorRating, criticRating: res?.criticRating };
   }
 
-  handleAllocineRating(str: string) {
+  private handleAllocineRating(str: string) {
     const split = str.split(',');
     if (split.length !== 2) return undefined;
 

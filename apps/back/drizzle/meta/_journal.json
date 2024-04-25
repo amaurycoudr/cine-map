@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1713090024868,
-      "tag": "0000_typical_professor_monster",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1713104061579,
-      "tag": "0001_certain_cyclops",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1713204991245,
-      "tag": "0002_noisy_queen_noir",
+      "when": 1714032376947,
+      "tag": "0000_known_deadpool",
       "breakpoints": true
     }
   ]

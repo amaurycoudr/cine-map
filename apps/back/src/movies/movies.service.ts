@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateCastDto, CreateCrewDto, CreateMovieDto, UpdateMovieDto } from './movies.types';
+import { CreateAllocineRatingsDto, CreateCastDto, CreateCrewDto, CreateMovieDto, UpdateMovieDto } from './movies.types';
 import { Database, DrizzleProvider } from '../drizzle/drizzle.provider';
-import { casts, crews, movies } from '../drizzle/schema';
+import { allocineRatings, casts, crews, movies } from '../drizzle/schema';
 import { and, eq, or } from 'drizzle-orm';
 
 @Injectable()
@@ -65,6 +65,10 @@ export class MoviesService {
 
   createCrew(crewDto: CreateCrewDto[]) {
     return this.db.insert(crews).values(crewDto).onConflictDoNothing().returning();
+  }
+
+  async createAllocineRatings(allocineRatingsDto: CreateAllocineRatingsDto) {
+    this.db.insert(allocineRatings).values(allocineRatingsDto).returning();
   }
 
   remove(id: number) {
