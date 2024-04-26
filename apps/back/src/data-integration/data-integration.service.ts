@@ -42,7 +42,6 @@ export class DataIntegrationService {
     const { id, title } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
 
     this.movieQueue.add('credits', { tmdbId, movieId: id });
-
     this.movieQueue.add('allocine', { id, title, tmdbId });
 
     return { id };
@@ -55,7 +54,7 @@ export class DataIntegrationService {
       originalLanguage: movieData.originalLanguage,
       title: movieData.title,
       overview: movieData.overview,
-      posterPath: movieData.posterPath,
+      poster: movieData.poster,
       releaseDate: movieData.releaseDate,
       tagLine: movieData.tagline,
     };

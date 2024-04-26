@@ -6,7 +6,7 @@ import * as qs from 'qs';
 const ALLOCINE_URL = 'https://www.allocine.fr/';
 const GOOGLE_URL = 'https://www.google.com/';
 
-// await get(AllocineService).getRatings("Star Wars : Le Réveil de la Force")
+// await get(AllocineService).getRatings("Star Wars, épisode III - La Revanche des Sith")
 
 @Injectable()
 export class AllocineService {
@@ -49,8 +49,9 @@ export class AllocineService {
         return link;
       })
       .toArray()
-      .filter((link) => link?.includes(linkCondition))
+      .filter((link) => link?.includes(`/url?q=${linkCondition}`))
       .at(0);
+
     if (!link) return undefined;
     return qs.parse(link)['/url?q'] as string;
   }

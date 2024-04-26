@@ -15,7 +15,7 @@ services:
       - '3000:3000'
     depends_on:
       - db
-    command: sh -c  "npm run studio-all & npm run dev-all"
+    command: npm run dev-all
   front:
     restart: unless-stopped
     build:

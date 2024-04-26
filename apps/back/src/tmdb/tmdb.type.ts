@@ -20,7 +20,7 @@ export const tmdbMovieDetailsSchema = z
     tmdbId: id,
     originalTitle: original_title,
     overview,
-    posterPath: poster_path,
+    poster: poster_path ? `${TMDB_IMG_URL}${poster_path}` : null,
     releaseDate: release_date,
     runtime,
     tagline,
@@ -49,12 +49,14 @@ export const tmdbPersonDetailSchema = z
       .transform((i) => `${i}`)
       .refine((i): i is Gender => GENDERS.includes(i as Gender)),
     id: z.number(),
+    profile_path: z.string().nullable(),
     known_for_department: z.string(),
     name: z.string(),
   })
-  .transform(({ birthday, deathday, gender, id, known_for_department, name }) => ({
+  .transform(({ birthday, deathday, profile_path, gender, id, known_for_department, name }) => ({
     birthday,
     deathday,
+    picture: profile_path ? `${TMDB_IMG_URL}${profile_path}` : null,
     gender: gender,
     tmdbId: id,
     knownFor: getJobFromTmbDepartment(known_for_department),
@@ -74,7 +76,7 @@ export const tmdbSearchMovie = z
   .transform(({ release_date, poster_path, original_title, ...obj }) => ({
     ...obj,
     releaseDate: release_date,
-    posterPath: poster_path,
+    poster: poster_path ? `${TMDB_IMG_URL}${poster_path}` : null,
     originalTitle: original_title,
   }));
 

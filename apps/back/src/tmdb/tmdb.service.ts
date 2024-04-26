@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { throttledPromises } from '../utils/utils';
 import { TMDB_API_URL, TMDB_ENDPOINTS, tmdbMovieCreditSchema, tmdbMovieDetailsSchema, tmdbPersonDetailSchema, tmdbSearchMovie } from './tmdb.type';
 
-// let res = await get(TmdbService).handleMovie(238)
 export type PersonSpecificKey = 'job' | 'character';
 export type Person<T extends string> = {
   [key in T]: unknown;

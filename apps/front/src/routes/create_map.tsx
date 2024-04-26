@@ -3,16 +3,16 @@ import { cn } from '@/components/lib/utils';
 import { Button } from '@/components/ui/button';
 import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import Typography from '@/components/ui/typography';
 import { CheckIcon, Cross1Icon } from '@radix-ui/react-icons';
-import { keepPreviousData, queryOptions, useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import dayjs from 'dayjs';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { client, queryClient } from '../client';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const mapQueryOptions = (id: number | undefined) =>
   queryOptions({
@@ -105,7 +105,7 @@ const Component = () => {
   const { data: searchData, isLoading: isLoadingSearch } = useQuery({
     queryKey: ['tmdb-search', debouncedQState],
     queryFn: () => client.searchTmdb({ query: { q: debouncedQState } }),
-    placeholderData: keepPreviousData,
+    //placeholderData: keepPreviousData,
     staleTime: Infinity,
     enabled: !!debouncedQState,
   });
@@ -197,10 +197,10 @@ const Component = () => {
               Ajouter un film
             </Button>
             <div className="flex flex-col gap-8 justify-between">
-              {mapData.movies.map(({ title, posterPath, overview, id, releaseDate }) => (
+              {mapData.movies.map(({ title, poster, overview, id, releaseDate }) => (
                 <div key={`${title}${releaseDate}`} className="flex gap-4">
-                  <div className="h-48 self-center aspect-[2/3]" key={posterPath}>
-                    <img alt={title} className="object-cover rounded-md shadow-lg " src={`https://image.tmdb.org/t/p/original/${posterPath}`} />
+                  <div className="h-48 self-center aspect-[2/3]" key={poster}>
+                    <img alt={title} className="object-cover rounded-md shadow-lg " src={`https://image.tmdb.org/t/p/original/${poster}`} />
                   </div>
                   <div className="flex flex-col flex-1">
                     <Typography variant={'h2'}>
@@ -274,8 +274,8 @@ const Component = () => {
           </CommandEmpty>
 
           {(searchData?.status === 200 ? searchData.body : [])
-            .filter(({ posterPath }) => !!posterPath)
-            .map(({ title, id, posterPath, releaseDate }) => {
+            .filter(({ poster }) => !!poster)
+            .map(({ title, id, poster, releaseDate }) => {
               const isSelected = mapData.movies.some((movie) => movie.tmdbId === id);
               const dbId = mapData.movies.find((movie) => movie.tmdbId === id)?.id || 0;
               const isLoading = (statusAdd === 'pending' && id === variablesAdd) || (statusDelete === 'pending' && id === variablesDelete);
@@ -287,11 +287,7 @@ const Component = () => {
                   key={`${title}${releaseDate}`}
                   value={`${title}${releaseDate}`}
                 >
-                  <img
-                    alt={title}
-                    className="object-cover h-24 rounded-md shadow-lg  aspect-[2/3] "
-                    src={`https://image.tmdb.org/t/p/original/${posterPath}`}
-                  />
+                  <img alt={title} className="object-cover h-24 rounded-md shadow-lg  aspect-[2/3] " src={poster!} />
                   <div className="flex flex-col">
                     <Typography variant={'p'} affects={'large'} className="line-clamp-2">
                       {title}

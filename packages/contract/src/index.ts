@@ -13,7 +13,7 @@ const mapSchema = z.object({
     z.object({
       id: z.number(),
       title: z.string(),
-      posterPath: z.string().nullable().optional(),
+      poster: z.string().nullable().optional(),
       tmdbId: z.number().nullable(),
       releaseDate: z.string(),
       overview: z.string().nullable().optional(),
@@ -33,7 +33,7 @@ export const contract = c.router({
           id: z.number(),
           originalTitle: z.string().openapi({ example: 'The name of the rose' }),
           overview: z.string(),
-          posterPath: z.string().nullable(),
+          poster: z.string().nullable(),
           releaseDate: z.string(),
           title: z.string(),
         }),

@@ -12,7 +12,7 @@ export const movies = pgTable(
     title: text('title').notNull(),
     releaseDate: date('releaseDate').notNull(),
     tmdbId: integer('tmdb_id'),
-    posterPath: text('posterPath'),
+    poster: text('poster'),
     originalLanguage: varchar('originalLanguage', { length: 128 }),
     overview: text('overview'),
     tagLine: text('tagline'),
@@ -81,6 +81,7 @@ export const persons = pgTable(
     id: serial('id').primaryKey().notNull(),
     name: text('name'),
     birthday: date('birthday'),
+    picture: text('picture'),
     deathday: date('deathday'),
     gender: genderEnum('gender'),
     tmdbId: integer('tmdb_id'),
@@ -129,7 +130,9 @@ export const moviesMapsRelations = relations(moviesMaps, ({ one }) => ({
 
 export const allocineRatings = pgTable('allocine_rating', {
   id: serial('id').primaryKey().notNull(),
-  movieId: integer('movie_id').references(() => movies.id, { onDelete: 'cascade' }),
+  movieId: integer('movie_id')
+    .references(() => movies.id, { onDelete: 'cascade' })
+    .unique(),
   critic: integer('critic'),
   spectator: integer('spectator'),
   link: text('link'),
