@@ -1,0 +1,1 @@
+ALTER TABLE "allocine_rating" ADD COLUMN "link" text;

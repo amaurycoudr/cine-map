@@ -1,45 +1,51 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
-import { AllocineService } from 'src/allocine/allocine.service';
+import { Queue } from 'bullmq';
 import { MoviesService } from 'src/movies/movies.service';
-import { PersonsService } from 'src/persons/persons.service';
 import { TmdbService } from 'src/tmdb/tmdb.service';
 import { TmdbMovieDetails } from 'src/tmdb/tmdb.type';
-import { JOBS_TRANSCO } from 'src/utils/transco';
 
 //get(DataIntegrationService).handleMovie(238, true)
 @Injectable()
 export class DataIntegrationService {
   constructor(
     private readonly moviesService: MoviesService,
-    private readonly personService: PersonsService,
     private readonly tmdbService: TmdbService,
-    private readonly allocineService: AllocineService,
+    @InjectQueue('movie-integration') private movieQueue: Queue,
   ) {}
 
   private readonly logger = new Logger(DataIntegrationService.name);
 
-  async insertPersons<T extends { tmdbId: number }>(tmdbIds: T[]) {
-    const persons = await this.tmdbService.getPersons(tmdbIds);
+  async handleTmdbMovie(tmdbId: number, replace = false) {
+    this.logStep(tmdbId, 'start integrating');
 
-    await this.personService.createWithNoConflict(persons.map(({ person }) => person));
-    return (await this.personService.findAllWithTmdbIds(persons.map(({ person: { tmdbId } }) => tmdbId))).map(({ id, tmdbId }) => {
-      const { person: _, ...rest } = persons.find(({ person: { tmdbId: comparatorId } }) => comparatorId === tmdbId)!;
+    const existingMovie = await this.moviesService.findByTmdbId(tmdbId);
 
-      return { personId: id, ...rest };
-    });
-  }
-  async insertCredits(tmdbId: number, movieId: number) {
-    const { cast, crew } = await this.tmdbService.getCredits(tmdbId);
-    const detailedCrew = await this.insertPersons(crew.filter(({ job }) => job !== JOBS_TRANSCO.unknown));
-    await this.moviesService.createCrew(detailedCrew.map(({ job, personId }) => ({ movieId, personId, job })));
-    this.logStep(tmdbId, 'crew inserted on the db');
+    if (existingMovie && !replace) {
+      this.logStep(tmdbId, 'already in DB');
+      return { id: existingMovie.id };
+    }
+    let movieData: TmdbMovieDetails;
+    try {
+      movieData = await this.tmdbService.getMovie(tmdbId);
+      this.logStep(tmdbId, 'gotten from TMDbB');
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.status == 404) {
+        this.logStep(tmdbId, 'not found on TMDB');
+        return undefined;
+      }
 
-    const detailedCast = await this.insertPersons(cast.sort((actor1, actor2) => -actor2.order + actor1.order));
+      throw error;
+    }
 
-    await this.moviesService.createCast(detailedCast.map(({ character, order, personId }) => ({ character, order, movieId, personId })));
+    const { id, title } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
 
-    this.logStep(tmdbId, 'cast inserted on the db');
+    this.movieQueue.add('credits', { tmdbId, movieId: id });
+
+    this.movieQueue.add('allocine', { id, title, tmdbId });
+
+    return { id };
   }
 
   async insertMovie(movieData: TmdbMovieDetails, isReplaced: boolean) {
@@ -58,37 +64,6 @@ export class DataIntegrationService {
 
     this.logStep(movieData.tmdbId, 'inserted on the db');
     return { movie };
-  }
-
-  async handleTmdbMovie(tmdbId: number, replace = false) {
-    this.logStep(tmdbId, 'start integrating');
-    const existingMovie = await this.moviesService.findByTmdbId(tmdbId);
-    if (existingMovie && !replace) {
-      this.logStep(tmdbId, 'already in DB');
-      return { id: existingMovie.id };
-    }
-    let movieData: TmdbMovieDetails;
-    try {
-      movieData = await this.tmdbService.getMovie(tmdbId);
-      this.logStep(tmdbId, 'gotten from TMDbB');
-    } catch (error) {
-      if (error instanceof AxiosError && error.response?.status == 404) {
-        this.logStep(tmdbId, 'not found on TMDB');
-        return undefined;
-      }
-      throw error;
-    }
-
-    const { id } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
-
-    this.insertCredits(tmdbId, id);
-
-    return { id };
-  }
-  async insertAllocineRatings({ id, title }: { id: number; title: string }, tmdbId: number) {
-    const { criticRating, spectatorRating } = await this.allocineService.getRatings(title);
-    await this.moviesService.createAllocineRatings({ movieId: id, critic: criticRating, spectator: spectatorRating });
-    this.logStep(tmdbId, 'allocine ratings inserted on the db');
   }
 
   private logStep(tmdbId: number, msg: string) {

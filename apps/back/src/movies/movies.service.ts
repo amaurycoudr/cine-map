@@ -69,8 +69,8 @@ export class MoviesService {
     return this.db.insert(crews).values(crewDto).onConflictDoNothing().returning();
   }
 
-  async createAllocineRatings(allocineRatingsDto: CreateAllocineRatingsDto) {
-    this.db.insert(allocineRatings).values(allocineRatingsDto).returning();
+  createAllocineRatings(allocineRatingsDto: CreateAllocineRatingsDto) {
+    return this.db.insert(allocineRatings).values(allocineRatingsDto).returning();
   }
 
   remove(id: number) {

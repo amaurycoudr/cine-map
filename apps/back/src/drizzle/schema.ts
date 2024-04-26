@@ -130,4 +130,5 @@ export const allocineRatings = pgTable('allocine_rating', {
     .references(() => movies.id, { onDelete: 'cascade' }),
   critic: integer('critic'),
   spectator: integer('spectator'),
+  link: text('link'),
 });

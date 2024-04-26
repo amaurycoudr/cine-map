@@ -1,36 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import * as cheerio from 'cheerio';
-const ALLOCINE_URL = 'https://www.allocine.fr/';
+import * as qs from 'qs';
 
-// await get(AllocineService).getRatings("Le Parrain")
+const ALLOCINE_URL = 'https://www.allocine.fr/';
+const GOOGLE_URL = 'https://www.google.com/';
+
+// await get(AllocineService).getRatings("Star Wars : Le Réveil de la Force")
 
 @Injectable()
 export class AllocineService {
-  private axiosClient: AxiosInstance;
+  private allocineClient: AxiosInstance;
+  private googleClient: AxiosInstance;
 
   constructor() {
-    this.axiosClient = axios.create({ baseURL: ALLOCINE_URL });
+    this.allocineClient = axios.create({ baseURL: ALLOCINE_URL });
+    this.googleClient = axios.create({ baseURL: GOOGLE_URL, headers: { 'Accept-Encoding': 'text/html; charset=UTF-8' } });
   }
 
   async getRatings(title: string) {
-    const { data } = await this.axiosClient.get(`/rechercher/?q=${encodeURI(title)}`);
+    //
 
+    const link = await this.getFirstLinkFromGoogle(`allocine ${title}`, `${ALLOCINE_URL}film/fichefilm_gen_cfilm`);
+
+    if (!link) {
+      return { criticRating: undefined, spectatorRating: undefined, link };
+    }
+
+    const { data } = await this.allocineClient.get(link?.replace(ALLOCINE_URL, ''));
     const $ = cheerio.load(data);
 
-    const movies = $('ul li.mdl')
+    // Extract ratings
+    const spectatorRating = this.handleAllocineRating($('.rating-item-content:contains("Spectateurs") .stareval-note').text().trim());
+    const criticRating = this.handleAllocineRating($('.rating-item-content:contains("Presse") .stareval-note').text().trim());
+
+    return { criticRating, spectatorRating, link };
+  }
+
+  private async getFirstLinkFromGoogle(searchStr: string, linkCondition: string) {
+    const { data } = await this.googleClient.get(`/search?q=${encodeURI(searchStr)}`);
+    const $ = cheerio.load(data);
+
+    const link = $('div#main')
+      .find('a')
       .map((_, element) => {
-        const title = $(element).find('.meta-title-link').text();
-        const spectatorRating = this.handleAllocineRating($(element).find('.rating-item .stareval-note').eq(1).text());
-        const criticRating = this.handleAllocineRating($(element).find('.rating-item .stareval-note').eq(0).text());
+        const link = $(element).attr('href');
 
-        return { criticRating, title, spectatorRating };
+        return link;
       })
-      .toArray();
-
-    const res = movies.find((m) => m.title.toLowerCase() === title.toLowerCase());
-
-    return { spectatorRating: res?.spectatorRating, criticRating: res?.criticRating };
+      .toArray()
+      .filter((link) => link?.includes(linkCondition))
+      .at(0);
+    if (!link) return undefined;
+    return qs.parse(link)['/url?q'] as string;
   }
 
   private handleAllocineRating(str: string) {
@@ -39,6 +61,14 @@ export class AllocineService {
 
     const [whole, decimal] = split;
 
-    return parseInt(whole) + 0.1 * parseInt(decimal);
+    return parseInt(whole) * 10 + parseInt(decimal);
+  }
+
+  static isTitle(title1: string, title2: string) {
+    const regex = /(:)|(-)|(' ')/;
+    const title1Treated = title1.toLowerCase().replace(regex, '').trim();
+    const title2Treated = title2.toLowerCase().replace(regex, '').trim();
+
+    return title1Treated === title2Treated;
   }
 }
