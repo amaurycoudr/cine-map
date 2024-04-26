@@ -27,7 +27,10 @@ export const moviesRelations = relations(movies, ({ many, one }) => ({
   cast: many(casts),
   crew: many(crews),
   maps: many(moviesMaps),
-  allocineRating: one(allocineRatings),
+  allocineRatings: one(allocineRatings, {
+    fields: [movies.id],
+    references: [allocineRatings.movieId],
+  }),
 }));
 
 export const casts = pgTable(
@@ -125,9 +128,8 @@ export const moviesMapsRelations = relations(moviesMaps, ({ one }) => ({
 }));
 
 export const allocineRatings = pgTable('allocine_rating', {
-  movieId: integer('movie_id')
-    .notNull()
-    .references(() => movies.id, { onDelete: 'cascade' }),
+  id: serial('id').primaryKey().notNull(),
+  movieId: integer('movie_id').references(() => movies.id, { onDelete: 'cascade' }),
   critic: integer('critic'),
   spectator: integer('spectator'),
   link: text('link'),

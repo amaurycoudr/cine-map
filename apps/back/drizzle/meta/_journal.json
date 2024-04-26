@@ -22,6 +22,34 @@
       "when": 1714127663930,
       "tag": "0002_faithful_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1714132320461,
+      "tag": "0003_moaning_moon_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1714132821227,
+      "tag": "0004_hesitant_la_nuit",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1714133084311,
+      "tag": "0005_lyrical_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1714133146925,
+      "tag": "0006_wild_mad_thinker",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "movie" RENAME COLUMN "allocine_rating" TO "allocine_ratings";

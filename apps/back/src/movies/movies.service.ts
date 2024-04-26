@@ -16,6 +16,13 @@ export class MoviesService {
     return this.db.query.movies.findFirst({
       where: (movie, { eq }) => eq(movie.id, id),
       with: {
+        allocineRatings: {
+          columns: {
+            critic: true,
+            spectator: true,
+            link: true,
+          },
+        },
         cast: {
           columns: { character: true, order: true },
           with: { person: true },

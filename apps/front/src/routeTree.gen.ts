@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as CreatemapImport } from './routes/create_map'
 import { Route as IndexImport } from './routes/index'
+import { Route as MoviesMovieIdImport } from './routes/movies.$movieId'
 
 // Create/Update Routes
 
@@ -23,6 +24,11 @@ const CreatemapRoute = CreatemapImport.update({
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MoviesMovieIdRoute = MoviesMovieIdImport.update({
+  path: '/movies/$movieId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -38,11 +44,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatemapImport
       parentRoute: typeof rootRoute
     }
+    '/movies/$movieId': {
+      preLoaderRoute: typeof MoviesMovieIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([IndexRoute, CreatemapRoute])
+export const routeTree = rootRoute.addChildren([
+  IndexRoute,
+  CreatemapRoute,
+  MoviesMovieIdRoute,
+])
 
 /* prettier-ignore-end */
