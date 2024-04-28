@@ -9,11 +9,77 @@ export class MoviesService {
   @Inject(DrizzleProvider) private db: Database;
 
   findAll() {
-    return this.db.query.movies.findMany({ limit: 10 });
+    return this.db.query.movies.findMany({
+      limit: 100,
+      columns: {
+        duration: true,
+        id: true,
+        originalLanguage: true,
+        overview: true,
+        poster: true,
+        releaseDate: true,
+        tagLine: true,
+        title: true,
+      },
+      with: {
+        allocineRatings: {
+          columns: {
+            critic: true,
+            spectator: true,
+            link: true,
+          },
+        },
+        cast: {
+          columns: { character: true },
+          with: {
+            person: {
+              columns: {
+                birthday: true,
+                deathday: true,
+                gender: true,
+                id: true,
+                knownFor: true,
+                name: true,
+                picture: true,
+              },
+            },
+          },
+          orderBy: asc(casts.order),
+          limit: 10,
+        },
+        crew: {
+          columns: { job: true },
+          with: {
+            person: {
+              columns: {
+                birthday: true,
+                deathday: true,
+                gender: true,
+                id: true,
+                knownFor: true,
+                name: true,
+                picture: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   findOne(id: number) {
     return this.db.query.movies.findFirst({
+      columns: {
+        duration: true,
+        id: true,
+        originalLanguage: true,
+        overview: true,
+        poster: true,
+        releaseDate: true,
+        tagLine: true,
+        title: true,
+      },
+
       where: (movie, { eq }) => eq(movie.id, id),
       with: {
         allocineRatings: {
@@ -24,14 +90,37 @@ export class MoviesService {
           },
         },
         cast: {
-          columns: { character: true, order: true },
-          with: { person: true },
+          columns: { character: true },
+          with: {
+            person: {
+              columns: {
+                birthday: true,
+                deathday: true,
+                gender: true,
+                id: true,
+                knownFor: true,
+                name: true,
+                picture: true,
+              },
+            },
+          },
           orderBy: asc(casts.order),
-          limit: 10,
         },
         crew: {
           columns: { job: true },
-          with: { person: true },
+          with: {
+            person: {
+              columns: {
+                birthday: true,
+                deathday: true,
+                gender: true,
+                id: true,
+                knownFor: true,
+                name: true,
+                picture: true,
+              },
+            },
+          },
         },
       },
     });

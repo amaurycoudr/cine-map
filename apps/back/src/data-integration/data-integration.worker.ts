@@ -1,3 +1,4 @@
+import { JOBS_TRANSCO } from '@cine-map/contract';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
@@ -5,7 +6,7 @@ import { AllocineService } from 'src/allocine/allocine.service';
 import { MoviesService } from 'src/movies/movies.service';
 import { PersonsService } from 'src/persons/persons.service';
 import { TmdbService } from 'src/tmdb/tmdb.service';
-import { JOBS_TRANSCO } from 'src/utils/transco';
+
 import { isKeyOfObject } from 'src/utils/utils';
 
 //get(DataIntegrationService).handleMovie(238, true)
@@ -28,10 +29,11 @@ export class DataIntegrationWorker extends WorkerHost {
       job.name === 'allocine' &&
       isKeyOfObject('id' as const, job.data) &&
       isKeyOfObject('title' as const, job.data) &&
-      isKeyOfObject('tmdbId' as const, job.data)
+      isKeyOfObject('tmdbId' as const, job.data) &&
+      isKeyOfObject('releaseDate' as const, job.data)
     ) {
       this.logStep(job.data.tmdbId, 'start inserting allocine ratings');
-      await this.insertAllocineRatings({ id: job.data.id, title: job.data.title }, job.data.tmdbId);
+      await this.insertAllocineRatings({ id: job.data.id, title: job.data.title, releaseDate: job.data.releaseDate }, job.data.tmdbId);
     } else {
       this.logger.log(`UNKNOWN JOB/INVALID PARAMS, name: ${job.name}`);
     }
@@ -56,15 +58,15 @@ export class DataIntegrationWorker extends WorkerHost {
     const persons = await this.tmdbService.getPersons(tmdbIds);
 
     await this.personService.createWithNoConflict(persons.map(({ person }) => person));
-    return (await this.personService.findAllWithTmdbIds(persons.map(({ person: { tmdbId } }) => tmdbId))).map(({ id, tmdbId }) => {
-      const { person: _, ...rest } = persons.find(({ person: { tmdbId: comparatorId } }) => comparatorId === tmdbId)!;
-
+    const personsFromDb = await this.personService.findAllWithTmdbIds(persons.map(({ person: { tmdbId } }) => tmdbId));
+    return persons.map(({ tmdbId, ...rest }) => {
+      const { id } = personsFromDb.find(({ tmdbId: comparatorId }) => comparatorId === tmdbId)!;
       return { personId: id, ...rest };
     });
   }
 
-  async insertAllocineRatings({ id, title }: { id: number; title: string }, tmdbId: number) {
-    const { criticRating, spectatorRating, link } = await this.allocineService.getRatings(title);
+  async insertAllocineRatings({ id, title, releaseDate }: { id: number; title: string; releaseDate: string }, tmdbId: number) {
+    const { criticRating, spectatorRating, link } = await this.allocineService.getRatings(title, releaseDate);
     await this.moviesService.createAllocineRatings({ movieId: id, critic: criticRating, spectator: spectatorRating, link });
     this.logStep(tmdbId, 'allocine ratings inserted on the db');
   }

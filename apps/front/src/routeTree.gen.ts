@@ -11,11 +11,17 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TestImport } from './routes/test'
 import { Route as CreatemapImport } from './routes/create_map'
 import { Route as IndexImport } from './routes/index'
 import { Route as MoviesMovieIdImport } from './routes/movies.$movieId'
 
 // Create/Update Routes
+
+const TestRoute = TestImport.update({
+  path: '/test',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const CreatemapRoute = CreatemapImport.update({
   path: '/create_map',
@@ -44,6 +50,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatemapImport
       parentRoute: typeof rootRoute
     }
+    '/test': {
+      preLoaderRoute: typeof TestImport
+      parentRoute: typeof rootRoute
+    }
     '/movies/$movieId': {
       preLoaderRoute: typeof MoviesMovieIdImport
       parentRoute: typeof rootRoute
@@ -56,6 +66,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   CreatemapRoute,
+  TestRoute,
   MoviesMovieIdRoute,
 ])
 

@@ -17,6 +17,8 @@ services:
       - db
     command: npm run dev-all
   front:
+    env_file:
+      - apps/front/.env
     restart: unless-stopped
     build:
       context: .

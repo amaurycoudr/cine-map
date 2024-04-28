@@ -146,8 +146,8 @@ const Component = () => {
 
   return (
     <div className="px-4">
-      <div className="pt-12 pb-24 px-0 container relative max-w-3xl w-full min-h-screen flex flex-col ">
-        <Typography variant={'h1'} className="self-center mb-12">
+      <div className="container relative flex min-h-screen w-full max-w-3xl flex-col px-0 pb-24 pt-12 ">
+        <Typography variant={'h1'} className="mb-12 self-center">
           Création d'une carte
         </Typography>
         <Step {...steps.title} isPreviousStepsValid isFocus={focusStep === steps.title.step}>
@@ -162,7 +162,7 @@ const Component = () => {
             }}
             ref={refInputTitle}
             placeholder="La carte du monde"
-            className="text-xl h-14 font-bold"
+            className="h-14 text-xl font-bold"
           />
         </Step>
         <Step isPreviousStepsValid={steps.title.isStepValid} {...steps.description} isFocus={focusStep === steps.description.step}>
@@ -184,7 +184,7 @@ const Component = () => {
           isFocus={focusStep === steps.movies.step}
         >
           <div
-            className="flex flex-col gap-6 mt-6"
+            className="mt-6 flex flex-col gap-6"
             onClick={() => {
               setFocusStep(steps.movies.step);
             }}
@@ -196,17 +196,17 @@ const Component = () => {
             >
               Ajouter un film
             </Button>
-            <div className="flex flex-col gap-8 justify-between">
+            <div className="flex flex-col justify-between gap-8">
               {mapData.movies.map(({ title, poster, overview, id, releaseDate }) => (
                 <div key={`${title}${releaseDate}`} className="flex gap-4">
-                  <div className="h-48 self-center aspect-[2/3]" key={poster}>
-                    <img alt={title} className="object-cover rounded-md shadow-lg " src={`https://image.tmdb.org/t/p/original/${poster}`} />
+                  <div className="aspect-[2/3] h-48 self-center" key={poster}>
+                    <img alt={title} className="rounded-md object-cover shadow-lg " src={`https://image.tmdb.org/t/p/original/${poster}`} />
                   </div>
-                  <div className="flex flex-col flex-1">
+                  <div className="flex flex-1 flex-col">
                     <Typography variant={'h2'}>
-                      {title} <span className="text-sm text-muted-foreground">({dayjs(releaseDate).format('DD/MM/YYYY')})</span>
+                      {title} <span className="text-muted-foreground text-sm">({dayjs(releaseDate).format('DD/MM/YYYY')})</span>
                     </Typography>
-                    <p className="mt-3 text-muted-foreground line-clamp-5 text-justify">{overview}</p>
+                    <p className="text-muted-foreground mt-3 line-clamp-5 text-justify">{overview}</p>
                   </div>
                   <Button onClick={() => deleteMovieFromMap(id)} variant={'secondary'} className="self-center">
                     Enlever
@@ -216,11 +216,11 @@ const Component = () => {
             </div>
           </div>
         </Step>
-        <div className="fixed -translate-x-1/2 left-1/2 px-6 bottom-6 max-w-xl w-full">
+        <div className="fixed bottom-6 left-1/2 w-full max-w-xl -translate-x-1/2 px-6">
           <div className="bg-background rounded-lg">
             <Button
               disabled={Object.values(steps).some((step) => !step.isStepValid)}
-              className="bg-green-600 w-full  hover:bg-green-500 active:bg-green-500 shadow-2xl shadow-green-600"
+              className="w-full bg-green-600  shadow-2xl shadow-green-600 hover:bg-green-500 active:bg-green-500"
               onClick={() => patchMap({ isDraft: false })}
             >
               <CheckIcon className="mr-2 h-4 w-4" />
@@ -231,7 +231,7 @@ const Component = () => {
       </div>
 
       <CommandDialog
-        className="max-w-2xl w-full"
+        className="w-full max-w-2xl"
         open={openAddMovie}
         onOpenChange={(open) => {
           setOpenAddMovie(open);
@@ -249,13 +249,13 @@ const Component = () => {
           value={qState}
         />
         <CommandList className="h-96 px-2">
-          <CommandEmpty className="flex flex-1 justify-center flex-col">
+          <CommandEmpty className="flex flex-1 flex-col justify-center">
             {isLoadingSearch &&
               Array(10)
                 .fill(undefined)
                 .map(() => (
-                  <div className="relative flex select-none rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground gap-2 items-center">
-                    <Skeleton className="h-24 aspect-[2/3] rounded-md" />
+                  <div className="aria-selected:bg-accent aria-selected:text-accent-foreground relative flex select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none">
+                    <Skeleton className="aspect-[2/3] h-24 rounded-md" />
                     <div className="flex flex-col gap-2">
                       <Skeleton className="h-6 w-24 rounded-full" />
                       <Skeleton className="h-4 w-12 rounded-full" />
@@ -265,7 +265,7 @@ const Component = () => {
                   </div>
                 ))}
             {!isLoadingSearch && (
-              <div className="p-10 justify-center flex">
+              <div className="flex justify-center p-10">
                 <Typography variant={'h4'} className=" self-center">
                   {!debouncedQState ? 'On attend vos intructions chef !' : 'Rien de connu sous ce nom chef !'}
                 </Typography>
@@ -281,13 +281,13 @@ const Component = () => {
               const isLoading = (statusAdd === 'pending' && id === variablesAdd) || (statusDelete === 'pending' && id === variablesDelete);
               return (
                 <CommandItem
-                  className="gap-2 items-center"
+                  className="items-center gap-2"
                   onSelect={() => (isSelected ? deleteMovieFromMap(dbId) : addMovieToMap(id))}
                   disabled={isLoading}
                   key={`${title}${releaseDate}`}
                   value={`${title}${releaseDate}`}
                 >
-                  <img alt={title} className="object-cover h-24 rounded-md shadow-lg  aspect-[2/3] " src={poster!} />
+                  <img alt={title} className="aspect-[2/3] h-24 rounded-md object-cover  shadow-lg " src={poster!} />
                   <div className="flex flex-col">
                     <Typography variant={'p'} affects={'large'} className="line-clamp-2">
                       {title}
@@ -327,22 +327,22 @@ const Step = ({
   isFocus: boolean;
 }) => (
   <div
-    className={cn('mb-12 px-6 py-8 border transform duration-300 bg-background rounded-xl', {
+    className={cn('bg-background mb-12 transform rounded-xl border px-6 py-8 duration-300', {
       'mb-8': isStepValid,
       'opacity-50': !isPreviousStepsValid && !isFocus,
       'shadow-xl': isFocus,
     })}
   >
-    <div className={cn('flex flex-row gap-4 sticky top-0 items-start bg-background')}>
+    <div className={cn('bg-background sticky top-0 flex flex-row items-start gap-4')}>
       <Typography id={`${title}`} variant={'h2'} className=" flex-1  pt-2">
         {step}. {title}
       </Typography>
 
-      <div className="border rounded-md h-12 mt-1 aspect-square flex flex-row items-center justify-center">
-        {isStepValid ? <CheckIcon className="w-6 h-6 text-green-500" /> : <Cross1Icon className="w-6 h-6 text-zinc-500" />}
+      <div className="mt-1 flex aspect-square h-12 flex-row items-center justify-center rounded-md border">
+        {isStepValid ? <CheckIcon className="h-6 w-6 text-green-500" /> : <Cross1Icon className="h-6 w-6 text-zinc-500" />}
       </div>
     </div>
-    <p className="mt-2 mb-4 text-sm text-muted-foreground">{label}</p>
+    <p className="text-muted-foreground mb-4 mt-2 text-sm">{label}</p>
     {children}
   </div>
 );

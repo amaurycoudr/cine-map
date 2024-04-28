@@ -1,5 +1,5 @@
+import { Gender, GENDERS, getJobFromTmbDepartment, getJobFromTmdb } from '@cine-map/contract';
 import { z } from 'zod';
-import { Gender, GENDERS, getJobFromTmbDepartment, getJobFromTmdb } from '../utils/transco';
 
 export const tmdbMovieDetailsSchema = z
   .object({
@@ -8,7 +8,7 @@ export const tmdbMovieDetailsSchema = z
     original_title: z.string(),
     id: z.number(),
     overview: z.string(),
-    poster_path: z.string().nullable(),
+    poster_path: z.string(),
     release_date: z.string(),
     runtime: z.number(),
     tagline: z.string(),
@@ -20,7 +20,7 @@ export const tmdbMovieDetailsSchema = z
     tmdbId: id,
     originalTitle: original_title,
     overview,
-    poster: poster_path ? `${TMDB_IMG_URL}${poster_path}` : null,
+    poster: `${TMDB_IMG_URL}${poster_path}`,
     releaseDate: release_date,
     runtime,
     tagline,

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import * as cheerio from 'cheerio';
+import * as dayjs from 'dayjs';
 import * as qs from 'qs';
 
 const ALLOCINE_URL = 'https://www.allocine.fr/';
@@ -18,10 +19,8 @@ export class AllocineService {
     this.googleClient = axios.create({ baseURL: GOOGLE_URL, headers: { 'Accept-Encoding': 'text/html; charset=UTF-8' } });
   }
 
-  async getRatings(title: string) {
-    //
-
-    const link = await this.getFirstLinkFromGoogle(`allocine ${title}`, `${ALLOCINE_URL}film/fichefilm_gen_cfilm`);
+  async getRatings(title: string, releaseDate: string) {
+    const link = await this.getFirstLinkFromGoogle(`allocine ${title} (${dayjs(releaseDate).year()})`, `${ALLOCINE_URL}film/fichefilm_gen_cfilm`);
 
     if (!link) {
       return { criticRating: undefined, spectatorRating: undefined, link };
@@ -30,7 +29,6 @@ export class AllocineService {
     const { data } = await this.allocineClient.get(link?.replace(ALLOCINE_URL, ''));
     const $ = cheerio.load(data);
 
-    // Extract ratings
     const spectatorRating = this.handleAllocineRating($('.rating-item-content:contains("Spectateurs") .stareval-note').text().trim());
     const criticRating = this.handleAllocineRating($('.rating-item-content:contains("Presse") .stareval-note').text().trim());
 

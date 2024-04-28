@@ -1,18 +1,26 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { contract } from '@cine-map/contract';
+import { Controller, Delete, Param } from '@nestjs/common';
+import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { MoviesService } from './movies.service';
 
-@Controller('movies')
+@Controller()
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
-  @Get()
+  @TsRestHandler(contract.getMovies)
   findAll() {
-    return this.moviesService.findAll();
+    return tsRestHandler(contract.getMovies, async () => {
+      return { body: await this.moviesService.findAll(), status: 200 };
+    });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.moviesService.findOne(+id);
+  @TsRestHandler(contract.getMovie)
+  findOne() {
+    return tsRestHandler(contract.getMovie, async ({ params: { id } }) => {
+      const movie = await this.moviesService.findOne(+id);
+      if (!movie) return { status: 404, body: { error: 'Not found' } };
+      return { body: movie, status: 200 };
+    });
   }
 
   @Delete(':id')

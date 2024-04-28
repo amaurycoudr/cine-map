@@ -1,6 +1,6 @@
+import { GENDERS, JOBS } from '@cine-map/contract';
 import { relations } from 'drizzle-orm';
 import { boolean, date, integer, pgEnum, pgTable, primaryKey, serial, text, unique, varchar } from 'drizzle-orm/pg-core';
-import { GENDERS, JOBS } from '../utils/transco';
 
 export const genderEnum = pgEnum('gender', GENDERS);
 export const jobEnum = pgEnum('job', JOBS);
@@ -12,11 +12,11 @@ export const movies = pgTable(
     title: text('title').notNull(),
     releaseDate: date('releaseDate').notNull(),
     tmdbId: integer('tmdb_id'),
-    poster: text('poster'),
-    originalLanguage: varchar('originalLanguage', { length: 128 }),
-    overview: text('overview'),
-    tagLine: text('tagline'),
-    duration: integer('duration'),
+    poster: text('poster').notNull(),
+    originalLanguage: varchar('originalLanguage', { length: 128 }).notNull(),
+    overview: text('overview').default('').notNull(),
+    tagLine: text('tagline').default('').notNull(),
+    duration: integer('duration').notNull(),
   },
   (t) => ({
     unq: unique('unq_movie').on(t.releaseDate, t.title),
@@ -79,13 +79,13 @@ export const persons = pgTable(
   'person',
   {
     id: serial('id').primaryKey().notNull(),
-    name: text('name'),
+    name: text('name').notNull(),
     birthday: date('birthday'),
     picture: text('picture'),
     deathday: date('deathday'),
-    gender: genderEnum('gender'),
+    gender: genderEnum('gender').notNull(),
     tmdbId: integer('tmdb_id'),
-    knownFor: jobEnum('known_for'),
+    knownFor: jobEnum('known_for').notNull(),
   },
   (t) => ({
     unq: unique('unq_person').on(t.name, t.birthday).nullsNotDistinct(),

@@ -45,7 +45,7 @@ export class TmdbService {
   async getPersons<T extends { tmdbId: number }>(persons: T[]) {
     return await throttledPromises(
       persons,
-      async ({ tmdbId, ...rest }) => ({ person: await this.getPerson(tmdbId), ...rest }),
+      async ({ tmdbId, ...rest }) => ({ person: await this.getPerson(tmdbId), tmdbId, ...rest }),
       this.PARALLEL_REQUEST,
     );
   }

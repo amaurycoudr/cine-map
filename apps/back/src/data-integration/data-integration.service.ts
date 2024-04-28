@@ -39,10 +39,10 @@ export class DataIntegrationService {
       throw error;
     }
 
-    const { id, title } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
+    const { id, title, releaseDate } = (await this.insertMovie(movieData, replace && !!existingMovie)).movie;
 
     this.movieQueue.add('credits', { tmdbId, movieId: id });
-    this.movieQueue.add('allocine', { id, title, tmdbId });
+    this.movieQueue.add('allocine', { id, title, tmdbId, releaseDate });
 
     return { id };
   }
