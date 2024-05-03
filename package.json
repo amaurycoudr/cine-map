@@ -5,7 +5,8 @@
   "scripts": {
     "ci-all": "npm ci --workspaces  --if-present",
     "dev-all": "npm run dev  --workspaces  --if-present",
-    "studio-all": "npm run studio  --workspaces  --if-present"
+    "studio-all": "npm run studio  --workspaces  --if-present",
+    "build-all": "npm run build  --workspaces  --if-present"
   },
   "author": "",
   "license": "ISC",

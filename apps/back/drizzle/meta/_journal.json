@@ -64,6 +64,13 @@
       "when": 1714136089181,
       "tag": "0008_unknown_black_bird",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1714551029392,
+      "tag": "0009_lowly_wendigo",
+      "breakpoints": true
     }
   ]
 }

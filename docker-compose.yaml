@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: apps/back/Dockerfile
+      target: development
     env_file:
       - apps/back/docker.env
     volumes:
