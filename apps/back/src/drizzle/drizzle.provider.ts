@@ -19,7 +19,7 @@ export const drizzleProvider = {
       database: config.get('DB_NAME'),
     });
 
-    const db = drizzle(queryClient, { schema: schema, logger: true });
+    const db = drizzle(queryClient, { schema: schema });
 
     return db;
   },

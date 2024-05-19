@@ -1,1 +1,0 @@
-ALTER TABLE "cast" ADD COLUMN "order" integer;

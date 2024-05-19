@@ -82,6 +82,11 @@
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
   }
+
+  a,
+  button {
+    @apply ring-primary outline-none ring-offset-2 focus:ring-2 active:ring-offset-0;
+  }
 }
 
 @layer base {

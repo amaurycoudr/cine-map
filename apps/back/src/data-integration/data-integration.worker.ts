@@ -33,6 +33,7 @@ export class DataIntegrationWorker extends WorkerHost {
       isKeyOfObject('releaseDate' as const, job.data)
     ) {
       this.logStep(job.data.tmdbId, 'start inserting allocine ratings');
+
       await this.insertAllocineRatings({ id: job.data.id, title: job.data.title, releaseDate: job.data.releaseDate }, job.data.tmdbId);
     } else {
       this.logger.log(`UNKNOWN JOB/INVALID PARAMS, name: ${job.name}`);
@@ -48,9 +49,7 @@ export class DataIntegrationWorker extends WorkerHost {
     this.logStep(tmdbId, 'crew inserted on the db');
 
     const detailedCast = await this.insertPersons(cast.sort((actor1, actor2) => -actor2.order + actor1.order));
-
     await this.moviesService.createCast(detailedCast.map(({ character, order, personId }) => ({ character, order, movieId, personId })));
-
     this.logStep(tmdbId, 'cast inserted on the db');
   }
 
@@ -58,6 +57,7 @@ export class DataIntegrationWorker extends WorkerHost {
     const persons = await this.tmdbService.getPersons(tmdbIds);
 
     await this.personService.createWithNoConflict(persons.map(({ person }) => person));
+
     const personsFromDb = await this.personService.findAllWithTmdbIds(persons.map(({ person: { tmdbId } }) => tmdbId));
     return persons.map(({ tmdbId, ...rest }) => {
       const { id } = personsFromDb.find(({ tmdbId: comparatorId }) => comparatorId === tmdbId)!;

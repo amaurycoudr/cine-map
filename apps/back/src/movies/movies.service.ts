@@ -77,6 +77,7 @@ export class MoviesService {
         poster: true,
         releaseDate: true,
         tagLine: true,
+        backdrop: true,
         title: true,
       },
 

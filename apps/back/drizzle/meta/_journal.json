@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1714032376947,
-      "tag": "0000_known_deadpool",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1714035775785,
-      "tag": "0001_ordinary_callisto",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1714127663930,
-      "tag": "0002_faithful_talon",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1714132320461,
-      "tag": "0003_moaning_moon_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1714132821227,
-      "tag": "0004_hesitant_la_nuit",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1714133084311,
-      "tag": "0005_lyrical_quasimodo",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1714133146925,
-      "tag": "0006_wild_mad_thinker",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1714134836480,
-      "tag": "0007_blushing_stone_men",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1714136089181,
-      "tag": "0008_unknown_black_bird",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1714551029392,
-      "tag": "0009_lowly_wendigo",
+      "when": 1714746635029,
+      "tag": "0000_salty_captain_cross",
       "breakpoints": true
     }
   ]

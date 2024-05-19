@@ -114,7 +114,6 @@ const Component = () => {
     if (id !== loadedId) navigate({ search: { id: loadedId, q }, replace: true });
   }, [loadedId, id, q, navigate]);
 
-  console.log(refInputTitle);
   useEffect(() => {
     refInputTitle.current?.focus();
   }, []);

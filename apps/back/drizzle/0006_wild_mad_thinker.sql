@@ -1,1 +1,0 @@
-ALTER TABLE "movie" DROP COLUMN IF EXISTS "allocine_ratings";

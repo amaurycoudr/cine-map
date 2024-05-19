@@ -1,5 +1,5 @@
 {
-  "id": "66b615b9-4121-44bc-a4f1-e548f9974fab",
+  "id": "d4b86c07-2b1e-48f5-b44b-c6cdb2b31060",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -8,11 +8,17 @@
       "name": "allocine_rating",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
         "movie_id": {
           "name": "movie_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "critic": {
           "name": "critic",
@@ -23,6 +29,12 @@
         "spectator": {
           "name": "spectator",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         }
@@ -44,7 +56,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "allocine_rating_movie_id_unique": {
+          "name": "allocine_rating_movie_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "movie_id"
+          ]
+        }
+      }
     },
     "cast": {
       "name": "cast",
@@ -67,6 +87,12 @@
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -239,8 +265,14 @@
           "primaryKey": false,
           "notNull": false
         },
-        "posterPath": {
-          "name": "posterPath",
+        "poster": {
+          "name": "poster",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "backdrop": {
+          "name": "backdrop",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -249,25 +281,27 @@
           "name": "originalLanguage",
           "type": "varchar(128)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "overview": {
           "name": "overview",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "tagline": {
           "name": "tagline",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "''"
         },
         "duration": {
           "name": "duration",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -355,11 +389,17 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "birthday": {
           "name": "birthday",
           "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "picture": {
+          "name": "picture",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -373,7 +413,7 @@
           "name": "gender",
           "type": "gender",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "tmdb_id": {
           "name": "tmdb_id",
@@ -385,7 +425,7 @@
           "name": "known_for",
           "type": "job",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},

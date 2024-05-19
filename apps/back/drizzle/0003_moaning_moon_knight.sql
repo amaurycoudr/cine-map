@@ -1,1 +1,0 @@
-ALTER TABLE "allocine_rating" ADD COLUMN "id" serial NOT NULL;

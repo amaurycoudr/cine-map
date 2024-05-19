@@ -11,15 +11,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "allocine_rating" (
-	"movie_id" integer NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"movie_id" integer,
 	"critic" integer,
-	"spectator" integer
+	"spectator" integer,
+	"link" text,
+	CONSTRAINT "allocine_rating_movie_id_unique" UNIQUE("movie_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cast" (
 	"movie_id" integer NOT NULL,
 	"person_id" integer NOT NULL,
 	"character" varchar(256) NOT NULL,
+	"order" integer,
 	CONSTRAINT "cast_person_id_movie_id_character_pk" PRIMARY KEY("person_id","movie_id","character")
 );
 --> statement-breakpoint
@@ -42,11 +46,12 @@ CREATE TABLE IF NOT EXISTS "movie" (
 	"title" text NOT NULL,
 	"releaseDate" date NOT NULL,
 	"tmdb_id" integer,
-	"posterPath" text,
-	"originalLanguage" varchar(128),
-	"overview" text,
-	"tagline" text,
-	"duration" integer,
+	"poster" text NOT NULL,
+	"backdrop" text,
+	"originalLanguage" varchar(128) NOT NULL,
+	"overview" text DEFAULT '' NOT NULL,
+	"tagline" text DEFAULT '' NOT NULL,
+	"duration" integer NOT NULL,
 	CONSTRAINT "unq_movie" UNIQUE("releaseDate","title")
 );
 --> statement-breakpoint
@@ -58,12 +63,13 @@ CREATE TABLE IF NOT EXISTS "movies_maps" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "person" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text,
+	"name" text NOT NULL,
 	"birthday" date,
+	"picture" text,
 	"deathday" date,
-	"gender" "gender",
+	"gender" "gender" NOT NULL,
 	"tmdb_id" integer,
-	"known_for" "job",
+	"known_for" "job" NOT NULL,
 	CONSTRAINT "unq_person" UNIQUE NULLS NOT DISTINCT("name","birthday")
 );
 --> statement-breakpoint

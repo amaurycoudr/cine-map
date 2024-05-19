@@ -43,18 +43,30 @@ const MoviesMovieIdRoute = MoviesMovieIdImport.update({
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
     '/create_map': {
+      id: '/create_map'
+      path: '/create_map'
+      fullPath: '/create_map'
       preLoaderRoute: typeof CreatemapImport
       parentRoute: typeof rootRoute
     }
     '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
       preLoaderRoute: typeof TestImport
       parentRoute: typeof rootRoute
     }
     '/movies/$movieId': {
+      id: '/movies/$movieId'
+      path: '/movies/$movieId'
+      fullPath: '/movies/$movieId'
       preLoaderRoute: typeof MoviesMovieIdImport
       parentRoute: typeof rootRoute
     }
@@ -63,11 +75,11 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([
+export const routeTree = rootRoute.addChildren({
   IndexRoute,
   CreatemapRoute,
   TestRoute,
   MoviesMovieIdRoute,
-])
+})
 
 /* prettier-ignore-end */

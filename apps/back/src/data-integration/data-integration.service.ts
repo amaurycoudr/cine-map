@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { Queue } from 'bullmq';
 import { MoviesService } from 'src/movies/movies.service';
+import { UpdateMovieDto } from 'src/movies/movies.types';
 import { TmdbService } from 'src/tmdb/tmdb.service';
 import { TmdbMovieDetails } from 'src/tmdb/tmdb.type';
 
@@ -56,8 +57,9 @@ export class DataIntegrationService {
       overview: movieData.overview,
       poster: movieData.poster,
       releaseDate: movieData.releaseDate,
+      backdrop: movieData.backdropPath,
       tagLine: movieData.tagline,
-    };
+    } satisfies UpdateMovieDto;
 
     const movie = await (isReplaced ? this.moviesService.update(dto) : this.moviesService.create(dto));
 

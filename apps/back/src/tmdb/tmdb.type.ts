@@ -15,7 +15,7 @@ export const tmdbMovieDetailsSchema = z
     title: z.string(),
   })
   .transform(({ backdrop_path, original_language, original_title, id, overview, poster_path, release_date, runtime, tagline, title }) => ({
-    backdropPath: backdrop_path,
+    backdropPath: backdrop_path ? `${TMDB_IMG_URL}${backdrop_path}` : backdrop_path,
     originalLanguage: original_language,
     tmdbId: id,
     originalTitle: original_title,

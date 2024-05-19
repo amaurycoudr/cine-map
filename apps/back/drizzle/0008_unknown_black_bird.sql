@@ -1,1 +1,0 @@
-ALTER TABLE "allocine_rating" ADD CONSTRAINT "allocine_rating_movie_id_unique" UNIQUE("movie_id");

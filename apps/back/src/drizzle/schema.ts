@@ -13,6 +13,7 @@ export const movies = pgTable(
     releaseDate: date('releaseDate').notNull(),
     tmdbId: integer('tmdb_id'),
     poster: text('poster').notNull(),
+    backdrop: text('backdrop'),
     originalLanguage: varchar('originalLanguage', { length: 128 }).notNull(),
     overview: text('overview').default('').notNull(),
     tagLine: text('tagline').default('').notNull(),

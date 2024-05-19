@@ -2,6 +2,7 @@ import { contract } from '@cine-map/contract';
 import { Controller, Delete, Param } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { MoviesService } from './movies.service';
+import { DEFAULT_ERRORS } from 'src/utils/errors';
 
 @Controller()
 export class MoviesController {
@@ -18,7 +19,8 @@ export class MoviesController {
   findOne() {
     return tsRestHandler(contract.getMovie, async ({ params: { id } }) => {
       const movie = await this.moviesService.findOne(+id);
-      if (!movie) return { status: 404, body: { error: 'Not found' } };
+      if (!movie) return DEFAULT_ERRORS.notFound;
+
       return { body: movie, status: 200 };
     });
   }

@@ -6,3 +6,7 @@ export const ERRORS = {
 } as const;
 
 export const NOT_FOUND = 'Not found';
+
+export const DEFAULT_ERRORS = {
+  notFound: { status: 404, body: { error: 'Not found' } },
+} as const;

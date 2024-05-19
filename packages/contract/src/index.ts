@@ -155,7 +155,12 @@ export const contract = c.router(
       path: '/movies/:id',
       pathParams: z.object({ id: z.string().or(z.number()) }),
       responses: {
-        200: movieSchema.and(castsSchema).and(crewSchema).and(allocineRatings),
+        200: movieSchema
+          .and(castsSchema)
+          .and(crewSchema)
+          .and(allocineRatings)
+          .and(z.object({ backdrop: z.string().nullable() })),
+
         404: z.object({ error: z.enum(['Not found']) }),
       },
     },
